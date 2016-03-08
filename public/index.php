@@ -32,13 +32,12 @@ $app = new \Slim\Slim(array(
 $app->view(new \Slim\Views\Twig());
 $app->view->parserExtensions = array(new \Slim\Views\TwigExtension());
 
-ini_set('session.gc_probability', 1); 
-ini_set('session.gc_divisor', 1000000); 
-ini_set('session.gc_maxlifetime', 1000000); 
-session_start();
-if(!isset($_SESSION["clusterIndex"]) || !isset($config["rapi"][$_SESSION["clusterIndex"]])) {
-	$_SESSION["clusterIndex"] = 0;
+$clusterIndex = $app->getCookie('clusterIndex');
+if(!isset($clusterIndex) || !isset($config["rapi"][$clusterIndex])) {
+	$clusterIndex = 0;
+	$app->setCookie('clusterIndex', '0', '365 days');
 }
+$config["rapi-current"] = $config["rapi"][$clusterIndex];
 
 
 $app->get('/', function() use ($app) {
@@ -48,7 +47,7 @@ $app->get('/', function() use ($app) {
 
 $app->get('/instances(/:filter(/:value))', function($filter = "none", $value = "") use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$cluster = $g->getClusterInfo();
 	$clusterName = $g->getConfigName();
 	$instances = $g->getInstances(true);
@@ -80,7 +79,7 @@ $app->get('/instances(/:filter(/:value))', function($filter = "none", $value = "
 
 $app->get('/instanceDetails/:h', function($instanceName) use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$clusterName = $g->getConfigName();
 	$instance = $g->getInstance($instanceName);
 	if(isset($instance["nic.macs"][0])) {
@@ -97,13 +96,13 @@ $app->get('/instanceDetails/:h', function($instanceName) use ($app) {
 		"instance_dump" => print_r($instance,true),
 		"preseedConfigExists" => $preseedConfigExists,
 		"vlans" => $config["vlans"][$clusterName],
-		"spiceCa" => $config["rapi"][$_SESSION["clusterIndex"]]["spice-ca"],
+		"spiceCa" => $config["rapi-current"]["spice-ca"],
 		));
 });
 
 $app->get('/clusterNodes', function() use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$cluster = $g->getClusterInfo();
 	$clusterName = $g->getConfigName();
 	$nodes = $g->getNodes(true);
@@ -129,7 +128,7 @@ $app->get('/clusterNodes', function() use ($app) {
 
 $app->get('/jobs', function() use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$cluster = $g->getClusterInfo();
 	$clusterName = $g->getConfigName();
 	$jobs = array_reverse($g->getJobs(true));
@@ -141,7 +140,7 @@ $app->get('/jobs', function() use ($app) {
 
 $app->get('/jobDetails/:h', function($jobid) use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$clusterName = $g->getConfigName();
 	$job = $g->getJob($jobid);
 	$app->render('page_jobdetails.html', array( "config" => $config,
@@ -152,7 +151,7 @@ $app->get('/jobDetails/:h', function($jobid) use ($app) {
 
 $app->get('/jobStatus', function() use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$clusterName = $g->getConfigName();
 	$jobs = array_reverse($g->getJobs(true));
 	$status = array();
@@ -165,7 +164,7 @@ $app->get('/jobStatus', function() use ($app) {
 
 $app->get('/jobStatus/:j', function($jobId) use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$clusterName = $g->getConfigName();
 	$job = $g->getJob($jobId);
 	$status = $job["status"];
@@ -175,7 +174,7 @@ $app->get('/jobStatus/:j', function($jobId) use ($app) {
 
 $app->get('/createInstance', function() use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$cluster = $g->getClusterInfo();
 	$clusterName = $g->getConfigName();
 	$app->render('page_createinstance.html', array( "config" => $config,
@@ -187,7 +186,7 @@ $app->get('/createInstance', function() use ($app) {
 
 $app->post('/createInstance', function() use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$params = array(
 		"__version__" => 1,
 		"conflicts_check" => false,
@@ -228,7 +227,7 @@ $app->post('/createInstance', function() use ($app) {
 
 $app->post('/changeInstanceStatus/:h', function($instance) use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$return = -1;
 	switch($_POST["action"]) {
 	case "start":
@@ -258,7 +257,7 @@ $app->post('/changeInstanceStatus/:h', function($instance) use ($app) {
 
 $app->get('/removePreseedConfig/:h', function($instance) use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$inst = $g->getInstance($instance);
 	$mac = $inst["nic.macs"][0];
 	$filename = "01-" . str_replace(":","-",$mac);
@@ -272,12 +271,12 @@ $app->get('/removePreseedConfig/:h', function($instance) use ($app) {
 $app->get('/setCluster/:h', function($cluster) use ($app) {
 	global $config;
 	if(is_numeric($cluster) && isset($config["rapi"][$cluster])) {
-		$_SESSION["clusterIndex"] = $cluster;
+		$app->setCookie("clusterIndex", $cluster, "365 days");
 	}
 	else {
-		$_SESSION["clusterIndex"] = 0;
+		$app->setCookie("clusterIndex", "0", "365 days");
 	}
-	Header("Location: /clusterNodes");
+	$app->redirect("/clusterNodes");
 	exit;
 });
 
@@ -295,7 +294,7 @@ $app->get('/getSpiceConfig/:h/:p', function($host, $port) use ($app) {
 
 $app->post('/instanceParameter/:h/:t/:p/:v', function($instance, $type, $parameter, $value) use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$return = -1;
 	switch($type) {
 	case "beparam":
@@ -343,7 +342,7 @@ $app->post('/instanceParameter/:h/:t/:p/:v', function($instance, $type, $paramet
 
 $app->post('/updateNic/:i/:n/:m/:l', function($instance, $nic, $mac, $link) use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$return = $g->setNicParameters($instance, $nic, $mac, $link);
 	Header("Content-Type: application/json");
 	echo json_encode($return);
@@ -352,7 +351,7 @@ $app->post('/updateNic/:i/:n/:m/:l', function($instance, $nic, $mac, $link) use 
 
 $app->post('/clusterHvParameter/:t/:p/:v', function($type, $parameter, $value) use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$return = $g->setClusterParameter("hvparams", $type, $parameter, $value);
 	Header("Content-Type: application/json");
 	echo json_encode($return);
@@ -361,7 +360,7 @@ $app->post('/clusterHvParameter/:t/:p/:v', function($type, $parameter, $value) u
 
 $app->post('/clusterIpolicyParameter/:p/:v', function($parameter, $value) use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi"][$_SESSION["clusterIndex"]]);
+	$g = new ganetiClient($config["rapi-current"]);
 	$return = $g->setClusterParameter("ipolicy", "none", $parameter, $value);
 	Header("Content-Type: application/json");
 	echo json_encode($return);
