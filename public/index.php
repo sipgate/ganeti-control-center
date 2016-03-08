@@ -41,8 +41,7 @@ $config["rapi-current"] = $config["rapi"][$clusterIndex];
 
 
 $app->get('/', function() use ($app) {
-	Header("Location: /instances");
-	exit;
+	$app->redirect("/instances");
 });
 
 $app->get('/instances(/:filter(/:value))', function($filter = "none", $value = "") use ($app) {
@@ -221,8 +220,7 @@ $app->post('/createInstance', function() use ($app) {
 		),
 	);
 	$g->createInstance($params);
-	Header("Location: /jobs");
-	exit;
+	$app->redirect("/jobs");
 });
 
 $app->post('/changeInstanceStatus/:h', function($instance) use ($app) {
@@ -264,8 +262,7 @@ $app->get('/removePreseedConfig/:h', function($instance) use ($app) {
 	if(file_exists("/var/lib/tftpboot/pxelinux.cfg/" . $filename)) {
 		unlink("/var/lib/tftpboot/pxelinux.cfg/" . $filename);
 	}
-	Header("Location: /instanceDetails/" . $instance);
-	exit;
+	$app->redirect("/instanceDetails/" . $instance);
 });
 
 $app->get('/setCluster/:h', function($cluster) use ($app) {
