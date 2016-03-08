@@ -17,6 +17,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# gcc settings
+$config = array(
+	"instancesPerPage" => 50,	# How many instances should be displayed per table-page?
+);
+
 # ganeti RAPI creds
 $config["rapi"][] = array(
 	"name" => "Sample-Cluster",
