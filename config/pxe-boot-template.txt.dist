@@ -1,0 +1,11 @@
+DEFAULT vesamenu.c32
+PROMPT 0
+TIMEOUT 10
+
+MENU TITLE JESSIE BOOT
+
+LABEL jessie64auto
+         MENU LABEL ^Jessie64
+         kernel jessie/amd64/linux
+         append vga=normal initrd=jessie/amd64/initrd.gz auto preseed/url=http://preseed.host/preseeding.cfg preseed/url/checksum=MD5SUMHERE interface=eth0 locale=en_US keyboard-configuration/xkb-keymap=de hostname=debianpreseed domain=local --
+

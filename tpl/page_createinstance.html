@@ -1,0 +1,55 @@
+{% extends "index.html" %}
+{% block content%}
+	<h1 class="page-header">Create VM</h1>
+	 <form method="POST" action="/createInstance">
+		 <div class="row">
+			<div class="col-md-12">
+				<div class="form-group">
+					<label for="inputVmName">VM Name</label>
+					<input type="text" class="form-control" id="inputVmName" placeholder="FQDN" name="vmName">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-4 text-center">
+				<div class="form-group">
+					<label for="inputCpuCount">CPU Count</label><br>
+					<input id="inputCpuCount" name="cpuCount" type="text" data-slider-min="1" data-slider-max="8" data-slider-step="1" data-slider-value="1"/>
+				</div>
+			</div>
+			<div class="col-md-4 text-center">
+				<div class="form-group">
+					<label for="inputMemory">Memory (MB)</label><br>
+					<input id="inputMemory" name="memory" type="text" data-slider-min="512" data-slider-max="4096" data-slider-step="256" data-slider-value="1024"/>
+				</div>
+			</div>
+			<div class="col-md-4 text-center">
+				<div class="form-group">
+					<label for="inputDiskSpace">Disk Space (GB)</label><br>
+					<input id="inputDiskSpace" name="diskSpace" type="text" data-slider-min="10" data-slider-max="60" data-slider-step="1" data-slider-value="20"/>
+				</div>
+			</div>
+		 </div>
+		 <div class="row">
+			 <div class="col-md-12 text-center" style="min-height: 100px">
+				 <div class="btn-group" data-toggle="buttons">
+{% for name,vlan in vlans %}
+					 <label class="btn btn-primary">
+						 <input type="radio" name="vlan" value="{{ vlan }}" id="option{{ vlan }}"> Vlan {{ vlan }} ({{ name }})
+					 </label>
+{% endfor %}
+				 </div>
+			 </div>
+		 </div>
+		 <div class="row">
+			 <div class="col-md-12 text-center">
+				 <button type="submit" class="btn btn-default">Create New Instance</button>
+			 </div>	
+		 </div>
+	 </form>
+	 <script>
+	$("#inputCpuCount").slider();
+	$("#inputMemory").slider();
+	$("#inputDiskSpace").slider();
+	 </script>
+{% endblock %}

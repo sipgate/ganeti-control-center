@@ -1,0 +1,31 @@
+.job_error {
+	color: red;
+}
+
+.job_running {
+	color: blue;
+}
+
+.job_waiting {
+	color: orange;
+}
+
+.job_success {
+	color: green;
+}
+
+.job_queued {
+	color: brown;
+}
+
+.alloc_policy_last_resort {
+	color: orange;
+}
+
+.alloc_policy_unallocable {
+	color: red;
+}
+
+.alloc_policy_preferred {
+	color: green;
+}

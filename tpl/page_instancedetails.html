@@ -1,0 +1,295 @@
+{% extends "index.html" %}
+{% block content%}
+	<h1 class="page-header">Node Details for {{ instance.name }}</h1>
+{% if preseedConfigExists %}	<div class="alert alert-danger" role="alert">Warning: A preseed configuration exists for this Instance! Click <a href="/removePreseedConfig/{{ instance.name }}">here</a> to remove it.</div>{% endif %}
+	<div class="row">
+		<div class="col-sm-12 col-md-12 col-lg-12 text-center">
+			<div class="row">
+			{% if instance.oper_state %}
+				<div class="col-md-4">
+					<a class="instanceAction btn btn-danger" data-instance="{{ instance.name }}" data-instanceaction="shutdown" style="width: 90px;">Shutdown</a>
+				</div>
+				<div class="col-md-4">
+					<a class="btn btn-primary" href="/getSpiceConfig/{{ instance.pnode }}/{{ instance.network_port }}" target="_blank">Spice Console</a>
+					<a class="btn btn-primary" data-toggle="modal" data-target="#spiceConsoleModal">Client Setup</a>
+				</div>
+				<div class="col-md-4">
+					<a class="instanceAction btn btn-warning" data-instance="{{ instance.name }}" data-instanceaction="migrate" style="width: 90px;">Migrate</a>
+				</div>
+			{% else %}
+				<div class="col-md-4">
+					<a class="instanceAction btn btn-success" data-instance="{{ instance.name }}" data-instanceaction="start" style="width: 90px;">Start</a>
+				</div>
+				<div class="col-md-4">
+					<a class="instanceAction btn btn-danger" data-instance="{{ instance.name }}" data-instanceaction="preseed">Start &amp; Preseed with Jessie</a>
+				</div>
+				<div class="col-md-4">
+				</div>
+			{% endif %}
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-12 col-md-6 col-lg-3">
+			<h3>General Settings</h3>
+			<table class="table table-striped" id="nicTable">
+			<thead>
+			<tr>
+				<th>Parameter</th>
+				<th>Value</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td>Primary Node</td>
+				<td>{{ instance.pnode }}</td>
+			</tr>
+			<tr>
+				<td>Secondary Node</td>
+				<td>{{ instance.snodes.0 }}</td>
+			</tr>
+			<tr>
+				<td>Default Disk Type</td>
+				<td>
+					{{ instance.hvparams.disk_type }}
+				</td>
+			</tr>
+			<tr>
+				<td>Default NIC Type</td>
+				<td>
+					{{ instance.hvparams.nic_type }}
+				</td>
+			</tr>
+			<tr>
+				<td>Spindle Use Count</td>
+				<td>
+					{{ instance.beparams.spindle_use }}
+					<div class="pull-right">
+					<a data-instance="{{ instance.name }}" data-type="beparam" data-param="spindleUseCount" data-value="{{ instance.beparams.spindle_use + 1 }}" class="paramChange btn btn-default btn-xs"><span class="glyphicon glyphicon-plus-sign"></span></a>
+					<a data-instance="{{ instance.name }}" data-type="beparam" data-param="spindleUseCount" data-value="{{ instance.beparams.spindle_use - 1 }}" class="paramChange btn btn-default btn-xs"><span class="glyphicon glyphicon-minus-sign"></span></a>
+					</div>
+				</td>
+			</tr>
+			</tbody>
+			</table>
+		</div>
+		<div class="col-sm-12 col-md-6 col-lg-3">
+			<h3>Memory/CPU</h3>
+			<table class="table table-striped" id="nicTable">
+			<thead>
+			<tr>
+				<th>Parameter</th>
+				<th>Value</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td>vCPUs</td>
+				<td>
+					{{ instance.beparams.vcpus }}
+					<div class="pull-right">
+					<a data-instance="{{ instance.name }}" data-type="beparam" data-param="cpuCount" data-value="{{ instance.beparams.vcpus + 1 }}" class="paramChange btn btn-default btn-xs"><span class="glyphicon glyphicon-plus-sign"></span></a>
+					<a data-instance="{{ instance.name }}" data-type="beparam" data-param="cpuCount" data-value="{{ instance.beparams.vcpus - 1 }}" class="paramChange btn btn-default btn-xs"><span class="glyphicon glyphicon-minus-sign"></span></a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>Memory</td>
+				<td>
+					{{ instance.beparams.memory / 1024 }} GB
+					<div class="pull-right">
+					<a data-instance="{{ instance.name }}" data-type="beparam" data-param="memoryAmount" data-value="{{ instance.beparams.memory + 1024 }}" class="paramChange btn btn-default btn-xs"><span class="glyphicon glyphicon-plus-sign"></span></a>
+					<a data-instance="{{ instance.name }}" data-type="beparam" data-param="memoryAmount" data-value="{{ instance.beparams.memory - 1024 }}" class="paramChange btn btn-default btn-xs"><span class="glyphicon glyphicon-minus-sign"></span></a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>min. Memory</td>
+				<td>{{ instance.beparams.minmem / 1024 }} GB</td>
+			</tr>
+			<tr>
+				<td>max. Memory</td>
+				<td>{{ instance.beparams.maxmem / 1024 }} GB</td>
+			</tr>
+			</tbody>
+			</table>
+		</div>
+
+		<div class="col-sm-12 col-md-6 col-lg-3">
+			<h3>Network Settings</h3>
+			<table class="table table-striped" id="nicTable">
+			<thead>
+			<tr>
+				<th>#</th>
+				<th>Mode</th>
+				<th>Mac</th>
+				<th>Link</th>
+			</tr>
+			</thead>
+			<tbody>
+{% for key,mac in instance["nic.macs"] %}
+			<tr>
+				<td>{{ key }}</td>
+				<td>{{ instance["nic.modes"][key] }}</td>
+				<td>{{ mac }}</td>
+				<td>
+					{{ instance["nic.links"][key] }}
+					<div class="pull-right">
+					<a class="btn btn-default btn-xs" data-toggle="modal" data-target="#nicEditModal" data-nicid="{{ key }}" data-link="{{ instance["nic.links"][key] }}" data-mac="{{ mac }}"><span class="glyphicon glyphicon-pencil"></a>
+					</div>
+				</td>
+			</tr>
+{% endfor %}
+			</tbody>
+			</table>
+			<h3>Disk Settings</h3>
+			<table class="table table-striped" id="diskTable">
+			<thead>
+			<tr>
+				<th>#</th>
+				<th>Size</th>
+			</tr>
+			</thead>
+			<tbody>
+{% for key,size in instance["disk.sizes"] %}
+			<tr>
+				<td>{{ key }}</td>
+				<td>{{ size / 1024 }} GB</td>
+			</tr>
+{% endfor %}
+			</tbody>
+			</table>
+
+		</div>
+		<div class="col-sm-12 col-md-6 col-lg-3">
+			<h3>Spice Settings</h3>
+			<table class="table table-striped" id="spiceTable">
+			<thead>
+			<tr>
+				<th>Parameter</th>
+				<th>Value</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td>Bind IP</td>
+				<td>
+					{{ instance.hvparams.spice_bind }}
+					<div class="pull-right">
+					<a class="btn btn-default btn-xs hvparamToggle" data-toggle="modal" data-target="#hvparamToggleModal" data-hvparam="spice_bind" data-hvcurrentvalue="{{ instance.hvparams.spice_bind }}" data-hvvalues="127.0.0.1,0.0.0.0" data-instance="{{ instance.name }}"><span class="glyphicon glyphicon-transfer"></a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>Port</td>
+				<td>{{ instance.network_port }}</td>
+			</tr>
+			<tr>
+				<td>TLS</td>
+				<td>
+					{{ instance.hvparams.spice_use_tls ? 'Yes' : 'No' }}
+					<div class="pull-right">
+					<a class="btn btn-default btn-xs hvparamToggle" data-toggle="modal" data-target="#hvparamToggleModal" data-hvparam="spice_use_tls" data-hvcurrentvalue="{{ instance.hvparams.spice_use_tls ? 'true' : 'false' }}" data-hvvalues="true,false" data-instance="{{ instance.name }}"><span class="glyphicon glyphicon-transfer"></a>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>Password enabled</td>
+				<td>
+					{{ instance.hvparams.spice_password_file ? 'Yes' : 'No' }}
+				</td>
+			</tr>
+			</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-12 col-md-12 col-lg-12 text-center">
+			<h3 class="text-left">Hypervisor Parameters</h3>
+			<table class="table table-striped" id="hvparamsTable">
+			<thead>
+			<tr>
+				<th>Parameter</th>
+				<th>Value</th>
+			</tr>
+			</thead>
+			<tbody>
+{% for key,value in instance.hvparams %}
+			<tr>
+				<td>{{ key }}</td>
+				<td>{{ value }}</td>
+			</tr>
+{% endfor %}
+			</tbody>
+			</table>
+		</div>
+
+	</div>
+	<div class="row">
+		<div class="col-sm-12 col-md-12 col-lg-12">
+			<pre style="margin-top: 30px;">
+{{ instance_dump }}
+			</pre>
+		</div>
+	</div>
+
+{% include 'dialogs_instancedetails.html' %}
+	<script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+		$('#hvparamsTable').dataTable({ "pageLength": 50, "order": [ [0, "asc"] ] });
+		$('#nicEditModal').on('show.bs.modal', function (event) {
+			var button = $(event.relatedTarget);
+			var nicId = button.data('nicid');
+			var link = button.data('link');
+			var mac = button.data('mac');
+
+			var modal = $(this);
+			modal.find('.modal-title').text('Edit NIC ' + nicId + ' Details');
+			$('#editNicId').val(nicId);
+			$('#nicEditMac').val(mac);
+			var vlan = link.replace('br','');
+			$('#nicEditVlan').val(vlan);
+		});
+		$('#nicEditSubmit').click(function() {
+			var instance = $('#editNicInstance').val();
+			var nicId = $('#editNicId').val();
+			var link = 'br' + $('#nicEditVlan').val();
+			var mac = $('#nicEditMac').val();
+			updateNic(instance, nicId, mac, link);
+			$('#nicEditModal').modal('hide');
+		});
+		$('.hvparamToggle').click(function() {
+			var instance = $(this).data('instance');
+			var hvParam = $(this).data('hvparam');
+			var hvCurrentValue = $(this).data('hvcurrentvalue');
+			var hvValues = $(this).data('hvvalues');
+
+			var modal = $('#hvparamToggleModal');
+			modal.find('.modal-title').text('Edit Parameter \'' + hvParam + '\'');
+			$('#hvparamToggleParam').val(hvParam);
+			$('#hvparamToggleInstance').val(instance);
+			var hvValues_list = hvValues.split(',');
+			$('#hvparamToggleStates').empty();
+			for (var i = 0; i < hvValues_list.length; i++) {
+				var selected = false;
+				if(String(hvValues_list[i]) == String(hvCurrentValue)) {
+					selected = true;
+				}
+				$('#hvparamToggleStates').append($('<option>', {
+					value: hvValues_list[i],
+					text: hvValues_list[i],
+					selected: selected
+				}));
+			}
+		});
+		$('#hvparamToggleSubmit').click(function() {
+			var instance = $('#hvparamToggleInstance').val();
+			var hvParam = $('#hvparamToggleParam').val();
+			var hvParamValue = $('#hvparamToggleStates').val();
+			setInstanceParameter(instance, 'hvparam', hvParam, hvParamValue);
+			$('#hvparamToggleModal').modal('hide');
+		});
+        } );
+        </script>
+
+{% endblock %}

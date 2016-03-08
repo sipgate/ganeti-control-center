@@ -1,0 +1,62 @@
+{% extends "index.html" %}
+{% block content%}
+	 <h2 class="sub-header">VMs on {{ cluster.name }}</h2>
+            <table class="table table-striped" id="instanceTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+		  <th>Primary</th>
+		  <th>Secondary</th>
+                  <th>vCPUs</th>
+                  <th>Memory</th>
+		  <th>Control</th>
+                </tr>
+              </thead>
+              <tbody>
+{% for item in instances %}
+                <tr>
+ 		<td style="vertical-align: middle;"><a href="/instanceDetails/{{ item.name }}">{{ item.name }}</a></td>
+		<td style="vertical-align: middle;"><a href="/instances/byPrimaryNode/{{ item.pnode }}">{{ item.pnode }}</a></td>
+		<td style="vertical-align: middle;"><a href="/instances/bySecondaryNode/{{ item.snodes[0] }}">{{ item.snodes[0] }}</a></td>
+                <td style="vertical-align: middle;">{{ item.beparams.vcpus }}</td>
+		<td style="vertical-align: middle;">{{ item.beparams.memory }}</td>
+		<td style="vertical-align: middle;">
+{% if item.oper_state %}
+		<a class="instanceAction btn btn-danger" data-instance="{{ item.name }}" data-instanceaction="shutdown" style="width: 90px;">Shutdown</a>
+		<a class="instanceAction btn btn-warning" data-instance="{{ item.name }}" data-instanceaction="migrate" style="width: 90px;">Migrate</a>
+{% else %}
+		<a class="instanceAction btn btn-success" data-instance="{{ item.name }}" data-instanceaction="start" style="width: 90px;">Start</a>
+{% endif %}
+
+		</td>
+                </tr>
+{% endfor %}
+              </tbody>
+            </table>
+	<script type="text/javascript" charset="utf-8">
+	$(document).ready(function() {
+		$('#instanceTable').dataTable({ "pageLength": 25, "order": [] });
+
+                $('.confirm-shutdown').confirm( {
+			text: "Are you sure you want to shutdown the VM?",
+			title: "Confirmation required",
+			post: true,
+			confirm: function(button) {
+				$(button).parent('form:first').submit();
+			},
+		});
+                $('.confirm-migrate').confirm( {
+			text: "Are you sure you want to migrate the VM?",
+			title: "Confirmation required",
+			post: true,
+			confirm: function(button) {
+				$(button).parent('form:first').submit();
+			},
+		});
+
+        } );
+        </script>
+
+	</script>
+
+{% endblock %}

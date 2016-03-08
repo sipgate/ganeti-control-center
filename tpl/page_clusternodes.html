@@ -1,0 +1,179 @@
+{% extends "index.html" %}
+{% block content%}
+<div class="row">
+	<div class="col-sm-12 col-md-12 col-lg-12">
+		<h3>Cluster Nodes</h3>
+		<table class="table table-striped" id="nodeTable">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Primary Inst.</th>
+					<th>Secondary Inst.</th>
+					<th>CPUs</th>
+					<th>Memory (Total/Free)</th>
+					<th>Disk (Total/Free)</th>
+					<th>Group</th>
+				</tr>
+			</thead>
+			<tbody>
+{% for item in nodes %}
+				<tr>
+					<td>{{ item.name }}</td>
+					<td><a href="/instances/byPrimaryNode/{{ item.name }}">{{ item.pinst_cnt }}</a></td>
+					<td><a href="/instances/bySecondaryNode/{{ item.name }}">{{ item.sinst_cnt }}</a></td>
+					<td>{{ item.ctotal }}</td>
+					<td>{{ item.mtotal }}/{{ item.mfree }}</td>
+					<td>{{ item.dtotal }}/{{ item.dfree }}</td>
+					<td class="alloc_policy_{{ item['group.policy']|default('none') }}">{{ item['group.name']|default('none') }}</td>
+				</tr>
+{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm-12 col-md-4 col-lg-4">
+		<h3>General Information</h3>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Version</td>
+					<td>{{ cluster.software_version }} ({{ cluster.architecture.1 }})</td>
+				</tr>
+				<tr>
+					<td>Master</td>
+					<td>{{ cluster.master }}</td>
+				</tr>
+				<tr>
+					<td>Disk Types</td>
+					<td>{{ cluster.enabled_disk_templates|join(', ') }}</td>
+				</tr>
+				<tr>
+					<td>Hypervisors</td>
+					<td>{{ cluster.enabled_hypervisors|join(', ') }}</td>
+				</tr>
+			</tbody>
+		</table>
+		<h3>Allocation Policy</h3>
+		<table class="table table-striped">
+			<thead>
+				<th>Parameter</th>
+				<th>Value</th>
+			</thead>
+			<tbody>
+				<tr>
+					<td>vCPUs per real CPU</td>
+					<td>
+						{{ cluster.ipolicy['vcpu-ratio'] }}
+						<div class="pull-right">
+							<a class="btn btn-default btn-xs clusterIpolicyEdit" data-toggle="modal" data-target="#clusterIpolicyEditModal" data-ipparam="vcpu-ratio" data-ipcurrentvalue="{{ cluster.ipolicy['vcpu-ratio'] }}"><span class="glyphicon glyphicon-pencil"></span></a>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>VMs per Spindle</td>
+					<td>
+						{{ cluster.ipolicy['spindle-ratio'] }}
+						<div class="pull-right">
+							<a class="btn btn-default btn-xs clusterIpolicyEdit" data-toggle="modal" data-target="#clusterIpolicyEditModal" data-ipparam="spindle-ratio" data-ipcurrentvalue="{{ cluster.ipolicy['spindle-ratio'] }}"><span class="glyphicon glyphicon-pencil"></span></a>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<h3>KVM Migration Settings</h3>
+		<table class="table table-striped">
+			<thead>
+				<th>Parameter</th>
+				<th>Value</th>
+			</thead>
+			<tbody>
+				<tr>
+					<td>max. Memory Transfer Bandwidth</td>
+					<td>
+						{{ cluster.hvparams.kvm.migration_bandwidth }} MB/s
+						<div class="pull-right">
+							<a class="btn btn-default btn-xs clusterHvparamEdit" data-toggle="modal" data-target="#clusterHvparamEditModal" data-hvparam="migration_bandwidth" data-hvcurrentvalue="{{ cluster.hvparams.kvm.migration_bandwidth }}" data-hvtype="kvm"><span class="glyphicon glyphicon-pencil"></span></a>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>max. Migration Downtime</td>
+					<td>
+						{{ cluster.hvparams.kvm.migration_downtime }} ms
+						<div class="pull-right">
+							<a class="btn btn-default btn-xs clusterHvparamEdit" data-toggle="modal" data-target="#clusterHvparamEditModal" data-hvparam="migration_downtime" data-hvcurrentvalue="{{ cluster.hvparams.kvm.migration_downtime }}" data-hvtype="kvm"><span class="glyphicon glyphicon-pencil"></span></a>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="col-sm-12 col-md-8 col-lg-8">
+		<h3>DRBD Parameters</h3>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Value</th>
+				</tr>
+			</thead>
+			<tbody>
+{% for key,value in cluster.diskparams.drbd %}
+				<tr>
+					<td>{{ key }}</td>
+					<td>{{ value }}</td>
+				</tr>
+{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% include 'dialogs_cluster.html' %}
+<script type="text/javascript" charset="utf-8">
+	$(document).ready(function() {
+		$('#nodeTable').dataTable({ "pageLength": 100, "order": [] });
+		$('.clusterIpolicyEdit').click(function() {
+			var ipParam = $(this).data('ipparam');
+			var ipCurrentValue = $(this).data('ipcurrentvalue');
+
+			var modal = $('#clusterIpolicyEditModal');
+			modal.find('.modal-title').text('Edit Parameter \'' + ipParam + '\'');
+			$('#clusterIpolicyValue').val(ipCurrentValue);
+			$('#clusterIpolicyEditParam').val(ipParam);
+		});
+		$('#clusterIpolicyEditSubmit').click(function() {
+			var ipParam = $('#clusterIpolicyEditParam').val();
+			var ipParamValue = $('#clusterIpolicyValue').val();
+			setClusterIpolicyParameter(ipParam, ipParamValue);
+			$('#clusterIpolicyEditModal').modal('hide');
+		});
+		$('.clusterHvparamEdit').click(function() {
+			var hvParam = $(this).data('hvparam');
+			var hvCurrentValue = $(this).data('hvcurrentvalue');
+			var hvType = $(this).data('hvtype');
+
+			var modal = $('#clusterHvparamEditModal');
+			modal.find('.modal-title').text('Edit Parameter \'' + hvParam + '\'');
+			$('#clusterHvparamValue').val(hvCurrentValue);
+			$('#clusterHvparamEditParam').val(hvParam);
+			$('#clusterHvparamType').val(hvType);
+		});
+		$('#clusterHvparamEditSubmit').click(function() {
+			var hvParam = $('#clusterHvparamEditParam').val();
+			var hvParamValue = $('#clusterHvparamValue').val();
+			var hvType = $('#clusterHvparamType').val();
+			setClusterHvParameter(hvType, hvParam, hvParamValue);
+			$('#clusterHvparamEditModal').modal('hide');
+		});
+
+	} );
+</script>
+
+{% endblock %}

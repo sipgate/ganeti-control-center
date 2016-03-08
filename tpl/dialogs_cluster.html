@@ -1,0 +1,61 @@
+<!-- Generic Cluster ipolicy Editing Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="clusterIpolicyEditModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Edit Cluster Policy Parameter</h4>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-6">
+								<input type="text" id="clusterIpolicyValue" name="value" value="" />
+							</div>
+							<div class="col-md-6 text-center">
+								<a id="clusterIpolicyEditSubmit" class="btn btn-success form-control">Change</a>
+							</div>
+						</div>
+						<input type="hidden" id="clusterIpolicyEditParam" name="param" value="-1" />
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Generic Cluster HvParams Editing Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="clusterHvparamEditModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Edit Cluster Hvparam Parameter</h4>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-6">
+								<input type="text" id="clusterHvparamValue" name="value" value="" />
+							</div>
+							<div class="col-md-6 text-center">
+								<a id="clusterHvparamEditSubmit" class="btn btn-success form-control">Change</a>
+							</div>
+						</div>
+						<input type="hidden" id="clusterHvparamEditParam" name="param" value="-1" />
+						<input type="hidden" id="clusterHvparamType" name="type" value="kvm" />
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+

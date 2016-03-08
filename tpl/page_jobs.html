@@ -1,0 +1,43 @@
+{% extends "index.html" %}
+{% block content%}
+	<h1 class="page-header">Jobs on {{ cluster.name }}</h1>
+            <table class="table table-striped" id="dashboardTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+		  <th>Result</th>
+		  <th>Summary</th>
+		  <th></th>
+		  <th>Start</th>
+		  <th>End</th>
+                </tr>
+              </thead>
+              <tbody>
+{% for item in jobs %}
+		<tr>
+			<td><a href="/jobDetails/{{ item.id }}">{{ item.id }}</a></td>
+			<td class="job_{{ item.opstatus[0] }}" id="jobStatus_{{ item.id }}">{{ item.opstatus[0] }}</td>
+			<td>{{ item.summary[0] }}</td>
+			<td>{% if item.instanceLink %}<a href="/instanceDetails/{{ item.instanceLink }}">Instance Details</a>{% endif %}</td>
+			<td>{{ item.start_ts[0]|date("H:i:s d.m.y") }}</td>
+			<td>{{ item.end_ts[0]|date("H:i:s d.m.y") }}</td>
+		</tr>
+{% endfor %}
+              </tbody>
+            </table>
+	<script type="text/javascript" charset="utf-8">
+	function updateStatus() {
+		$.getJSON("/jobStatus", function(data) {
+			$.each( data, function (key, value) {
+				$("#jobStatus_" + key).html(value).removeClass().addClass("job_" + value);
+			});
+		});
+		setTimeout(updateStatus, 1000);
+	}
+	$(document).ready(function() {
+		$('#dashboardTable').dataTable({ "pageLength": 100, "order": [] });
+		setTimeout(updateStatus, 1000);		
+	} );
+	</script>
+
+{% endblock %}

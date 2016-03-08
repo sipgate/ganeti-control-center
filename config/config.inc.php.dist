@@ -1,0 +1,39 @@
+<?php
+
+# ganeti-control-center
+# Copyright (C) 2016 sipgate GmbH
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+# ganeti RAPI creds
+$config["rapi"][] = array(
+	"name" => "Sample-Cluster",
+	"host" => "some.server.net",
+	"user" => "gcc",
+	"password" => "password",
+	"spice-ca" => "",		# this holds the contents of /var/lib/ganeti/spice-ca.pem
+	);
+
+# repeat the above block to add multiple clusters
+
+# configure VLANs for ganeti clusters (array key corresponds to "name" parameter)
+$config["vlans"]["Sample-Cluster"] = array(
+	"Default" => 1,
+	"Servers" => 2,
+	"Dev" => 3,
+	"Setup" => 10,
+);
+
+?>

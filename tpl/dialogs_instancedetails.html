@@ -1,0 +1,108 @@
+<!-- NIC Editing Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="nicEditModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Edit NIC Details</h4>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<label for="mac">MAC</label>
+								<input type="text" class="form-control" id="nicEditMac" name="mac">
+							</div>
+							<div class="col-md-4">
+								<label for="vlan">VLAN</label>
+								<select class="form-control" id="nicEditVlan" name="vlan">
+{% for name,vlan in vlans %}
+									<option value="{{ vlan }}">br{{vlan }} ({{ name }})</option>
+{% endfor %}
+								</select>
+							</div>
+							<div class="col-md-4 text-center">
+								<a id="nicEditSubmit" class="btn btn-success form-control">Change</a>
+							</div>
+						</div>
+						<input type="hidden" id="editNicId" name="id" value="-1" />
+						<input type="hidden" id="editNicInstance" name="instance" value="{{ instance.name }}" />
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Generic HVParam Editing/Toggle Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="hvparamToggleModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Edit HV Param</h4>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-6">
+								<select class="form-control" id="hvparamToggleStates" name="value">
+								</select>
+							</div>
+							<div class="col-md-6 text-center">
+								<a id="hvparamToggleSubmit" class="btn btn-success form-control">Change</a>
+							</div>
+						</div>
+						<input type="hidden" id="hvparamToggleParam" name="param" value="-1" />
+						<input type="hidden" id="hvparamToggleInstance" name="instance" value="{{ instance.name }}" />
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Spice Setup Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="spiceConsoleModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Spice Console Setup</h4>
+			</div>
+			<div class="modal-body">
+				<p>
+				To use an encrypted spice session, please follow the following steps:
+				</p>
+				<h3>Linux</h3>
+				<p>
+				First, install the <strong>remote-viewer</strong> application:
+				<pre>apt-get install virt-viewer</pre>
+				Make sure your local <strong>.spicec</strong> folder exists:
+				<pre>mkdir -p ~/.spicec</pre>
+				Add this Cluster's CA Certificate to your trust store:
+				<pre>cat &lt;&lt; EOF &gt; ~/.spicec/spice_truststore.pem
+{{ spiceCa }}
+EOF</pre>
+				</p>
+				<h3>Mac OS X</h3>
+				<p>
+				First, install the <strong>remote-viewer</strong> application from <a href="http://www.ovirt.org/SPICE_Remote-Viewer_on_OS_X" target="_blank">this</a> URL.
+				From here on, I don't know what to do exactly. :-(
+				</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
