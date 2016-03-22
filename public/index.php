@@ -277,14 +277,23 @@ $app->get('/setCluster/:h', function($cluster) use ($app) {
 	exit;
 });
 
-$app->get('/getSpiceConfig/:h/:p', function($host, $port) use ($app) {
+$app->get('/getSpiceConfig/:i', function($instance) use ($app) {
+	global $config;
+	$g = new ganetiClient($config["rapi-current"]);
+	$inst = $g->getInstance($instance);
+	
 	Header("Content-Type: application/x-virt-viewer");
 	header("Content-disposition: attachment; filename=spice-connection.ini");
 	echo "[virt-viewer]\n";
         echo "type=spice\n";
-        echo "host=" . $host . "\n";
-	echo "tls-port=" . $port . "\n";
-	echo "host-subject=CN=ganeti.example.com\n";
+	echo "host=" . $inst["pnode"] . "\n";
+	if($inst["hvparams"]["spice_use_tls"]) {
+		echo "tls-port=" . $inst["network_port"] . "\n";
+		echo "host-subject=CN=ganeti.example.com\n";
+	}
+	else {
+		echo "port=" . $inst["network_port"] . "\n";
+	}
 	echo "delete-this-file=1\n";
 	exit;
 });
