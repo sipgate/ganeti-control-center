@@ -1,0 +1,200 @@
+{% extends "index.html" %}
+{% block content%}
+	<h1 class="page-header">Cluster Statistics</h1>
+	<div class="row">
+		<div class="col-md-2 text-center">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Nodes</h3>
+				</div>
+				<div class="panel-body">
+					<h1>{{ stats["node-count"] }}</h1>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-2 text-center">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Instances</h3>
+				</div>
+				<div class="panel-body">
+					<h1>{{ stats["instance-count"] }}</h1>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-2 text-center">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">CPU Cores</h3>
+				</div>
+				<div class="panel-body">
+					<h1>{{ stats.nodes.cpus }}</h1>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-2 text-center">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Disk Space</h3>
+				</div>
+				<div class="panel-body">
+					<h1 class="prettyPrintBytes">{{ stats.nodes.disk }}</h1>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-2 text-center">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Memory</h3>
+				</div>
+				<div class="panel-body">
+					<h1 class="prettyPrintBytes">{{ stats.nodes.memory }}</h1>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-2 text-center">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title"> Min/Avg/Max Inst. per Node</h3>
+				</div>
+				<div class="panel-body">
+					<h1>{{ stats["min-inst-per-node"] }} / {{ stats["avg-inst-per-node"] }} / {{ stats["max-inst-per-node"] }}</h1>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<label for="nodeSelect">Cluster / Node auswählen:</label>
+			<select id="nodeSelect">
+				<option value="clusterWideStats">Cluster</option>
+{% for instance, data in stats.pernode %}
+				<option value="{{ instance }}">{{ instance }}</option>
+{% endfor %}
+			</select>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-4 text-center">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Node vs Instance CPUs</h3>
+				</div>
+				<div class="panel-body" id="cpugraph">
+					
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4 text-center">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Disk Total vs. Disk Used</h3>
+				</div>
+				<div class="panel-body" id="diskgraph">
+					
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4 text-center">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Memory Total vs. Memory Used</h3>
+				</div>
+				<div class="panel-body" id="memgraph">
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript">
+		google.charts.load('current', {'packages':['corechart']});
+		var chartData = {
+			'clusterWideStats': {
+				'cpus': {
+					'virtual': {{ stats.instances.cpus }},
+					'real': {{ stats.nodes.cpus }}
+				},
+				'disk': {
+					'used': {{ stats.instances.disk }},
+					'free': {{ stats.nodes.diskfree }}
+				},
+				'mem': {
+					'used': {{ stats.instances.memory }},
+					'free': {{ stats.nodes.memfree }}
+				}
+			},
+{% for instance, data in stats.pernode %}
+			'{{ instance }}': {
+				'cpus': {
+					'virtual': {{ data.vcpus }},
+					'real': {{ data.cpus }},
+				},
+				'disk': {
+					'used': {{ data.disk }},
+					'free': {{ data.diskfree }}
+				},
+				'mem': {
+					'used': {{ data.memory }},
+					'free': {{ data.memfree }}
+				}
+			},
+{% endfor %}
+		};
+
+		function drawCharts(data,node) {
+			// set options for column charts
+			var options = { legend: { position: 'none' }, vAxis: { baseline: 0 } };
+
+			// prepare CPU column chart
+			var cpuData = new google.visualization.arrayToDataTable([
+				["Type", "Value", { role: "style" } ],
+				['virtual', data[node]['cpus']['virtual'] , 'FireBrick'],
+				['real', data[node]['cpus']['real'] , 'DarkSeaGreen']
+			]);
+			var chart = new google.visualization.ColumnChart(document.getElementById('cpugraph'));
+			chart.draw(cpuData, options);
+
+			// set options for pie charts
+			var options = { slices: { 0: { color: 'FireBrick' }, 1: { color: 'DarkSeaGreen' } } };
+
+			// prepare disk space pie chart
+			var diskData = new google.visualization.DataTable();
+			diskData.addColumn('string', 'Description');
+			diskData.addColumn('number', 'Memory');
+			diskData.addRows([
+				['Used', data[node]['disk']['used']],
+				['Free', data[node]['disk']['free']]
+			]);
+			var chart = new google.visualization.PieChart(document.getElementById('diskgraph'));
+			chart.draw(diskData, options);
+
+			// prepare memory pie chart
+			var memData = new google.visualization.DataTable();
+			memData.addColumn('string', 'Description');
+			memData.addColumn('number', 'Memory');
+			memData.addRows([
+				['Used', data[node]['mem']['used']],
+				['Free', data[node]['mem']['free']]
+			]);
+			var chart = new google.visualization.PieChart(document.getElementById('memgraph'));
+			chart.draw(memData, options);
+		}
+
+		$( document ).ready(function() {
+			$(".prettyPrintBytes").each(function() {
+				var size = $(this).text();
+				$(this).html(bytesToSize(size));
+			});
+
+			$("#nodeSelect").change(function() {
+				var val = $(this).val();
+				drawCharts(chartData,val);
+			});
+		});
+
+		google.charts.setOnLoadCallback(function() {
+			drawCharts(chartData,'clusterWideStats');
+		});
+	</script>
+{% endblock %}

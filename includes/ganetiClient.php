@@ -248,5 +248,73 @@ class ganetiClient {
 		}
 		return $data;
 	}
+
+	function getStats() {
+		$stats["instance-count"] = 0;
+		$stats["instances"]["memory"] = 0;
+		$stats["instances"]["disk"] = 0;
+		$stats["instances"]["cpus"] = 0;
+		$stats["node-count"] = 0;
+		$stats["nodes"]["memory"] = 0;
+		$stats["nodes"]["disk"] = 0;
+		$stats["nodes"]["cpus"] = 0;
+
+
+		# load instances
+		$instances = $this->getInstances(true);
+		foreach($instances AS $instance) {
+			# sum up memory/cpus (cluster-wide)
+			$stats["instance-count"]++;
+			$stats["instances"]["memory"] += $instance["beparams"]["memory"];
+			$stats["instances"]["cpus"] += $instance["beparams"]["vcpus"];
+
+			# sum up memory/cpus (per node)
+			isset($stats["pernode"][$instance["pnode"]]["memory"]) ? $stats["pernode"][$instance["pnode"]]["memory"] += $instance["beparams"]["memory"] : $stats["pernode"][$instance["pnode"]]["memory"] = $instance["beparams"]["memory"];
+				isset($stats["pernode"][$instance["pnode"]]["vcpus"]) ? $stats["pernode"][$instance["pnode"]]["vcpus"] += $instance["beparams"]["vcpus"] : $stats["pernode"][$instance["pnode"]]["vcpus"] = $instance["beparams"]["vcpus"];
+
+				# same for any disk(s) that might exist
+				foreach($instance["disk.sizes"] AS $disk) {
+					$stats["instances"]["disk"] += $disk;
+					isset($stats["pernode"][$instance["pnode"]]["disk"]) ? $stats["pernode"][$instance["pnode"]]["disk"] += $disk : $stats["pernode"][$instance["pnode"]]["disk"] = $disk;
+				}
+
+			# count instances per node
+			isset($stats["pnode-counter"][$instance["pnode"]]) ? $stats["pnode-counter"][$instance["pnode"]]++ : $stats["pnode-counter"][$instance["pnode"]] = 1;
+		}
+		# calculate instances-per-node-data
+		$stats["min-inst-per-node"] = min($stats["pnode-counter"]);
+		$stats["max-inst-per-node"] = max($stats["pnode-counter"]);
+		$stats["avg-inst-per-node"] = round(array_sum($stats["pnode-counter"]) / count($stats["pnode-counter"]));
+		unset($stats["pnode-counter"]);
+
+		# load cluster nodes
+		$nodes = $this->getNodes(true);
+		foreach($nodes AS $node) {
+			# sum up memory/cpu/disk totals (cluster-wide)
+			$stats["node-count"]++;
+			$stats["nodes"]["memory"] += $node["mtotal"];
+			$stats["nodes"]["disk"] += $node["dtotal"];
+			$stats["nodes"]["cpus"] += $node["ctotal"];
+
+			# save per-node data
+			$stats["pernode"][$node["name"]]["memtotal"] = $node["mtotal"];
+			$stats["pernode"][$node["name"]]["disktotal"] = $node["dtotal"];
+			$stats["pernode"][$node["name"]]["cpus"] = $node["ctotal"];
+		}
+
+		# calculate memory/disk diffs
+		$stats["nodes"]["memfree"] = $stats["nodes"]["memory"] - $stats["instances"]["memory"];
+		$stats["nodes"]["diskfree"] = $stats["nodes"]["disk"] - $stats["instances"]["disk"];
+		foreach($stats["pernode"] AS $node => $data) {
+			@$stats["pernode"][$node]["memfree"] = $data["memtotal"] - $data["memory"];
+			@$stats["pernode"][$node]["diskfree"] = $data["disktotal"] - $data["disk"];
+		}
+
+		# calculate real-to-virtual-cpu-ratio
+		$stats["nodes"]["cpu-ratio"] = round($stats["instances"]["cpus"] / $stats["nodes"]["cpus"],2);
+
+		return $stats;
+	}
+ 
 }
 ?>

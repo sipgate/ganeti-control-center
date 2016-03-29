@@ -373,6 +373,22 @@ $app->post('/clusterIpolicyParameter/:p/:v', function($parameter, $value) use ($
 	exit;
 });
 
+$app->get('/statistics', function() use ($app) {
+	global $config;
+	$g = new ganetiClient($config["rapi-current"]);
+	$cluster = $g->getClusterInfo();
+	$clusterName = $g->getConfigName();
+	$stats = $g->getStats();
+
+	$app->render('page_statistics.html', array( "config" => $config,
+		"clusterName" => $clusterName,
+		"vlans" => $config["vlans"][$clusterName],
+		"cluster" => $cluster,
+		"stats" => $stats,
+		));
+});
+
+
 $app->run();
 
 ?>

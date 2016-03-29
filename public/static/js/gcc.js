@@ -2,6 +2,13 @@ function isNumber(n) {
 	return /^-?[\d.]+(?:e-?\d+)?$/.test(n);
 }
 
+function bytesToSize(bytes) {
+	var sizes = ['MB', 'GB', 'TB'];
+	if (bytes == 0) return 'n/a';
+	var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+	return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[[i]];
+}
+
 function updateJobStatusModal() {
 	var jobId = $( "#jobStatusModal" ).data( "jobId" );
 	$.getJSON("/jobStatus/" + jobId , function(data) {
