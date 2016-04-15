@@ -22,8 +22,8 @@
 					<td><a href="/instances/byPrimaryNode/{{ item.name }}">{{ item.pinst_cnt }}</a></td>
 					<td><a href="/instances/bySecondaryNode/{{ item.name }}">{{ item.sinst_cnt }}</a></td>
 					<td>{{ item.ctotal }}</td>
-					<td>{{ item.mtotal }}/{{ item.mfree }}</td>
-					<td>{{ item.dtotal }}/{{ item.dfree }}</td>
+					<td>{{ ( item.mtotal / 1024 )| round(2) }}GB / {{ ( item.mfree / 1024 )| round(2) }}GB</td>
+					<td>{{ ( item.dtotal / 1024 )| round(2) }}GB / {{ ( item.dfree / 1024 )| round(2) }}GB</td>
 					<td class="alloc_policy_{{ item['group.policy']|default('none') }}">{{ item['group.name']|default('none') }}</td>
 				</tr>
 {% endfor %}

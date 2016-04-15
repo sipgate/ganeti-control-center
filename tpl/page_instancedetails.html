@@ -14,7 +14,7 @@
 					<a class="btn btn-primary" data-toggle="modal" data-target="#spiceConsoleModal">Client Setup</a>
 				</div>
 				<div class="col-md-4">
-					<a class="instanceAction btn btn-warning" data-instance="{{ instance.name }}" data-instanceaction="migrate" style="width: 90px;">Migrate</a>
+					<a class="btn btn-warning" data-toggle="modal" data-target="#migrateModal" data-instance="{{ instance.name }}" data-migNodes="{% if instance.disk_template == "sharedfile" %}{% for node in nodes %}{{node.name}} {% endfor %}{% endif %}{% if instance.snodes %}{% for node in instance.snodes %}{{node}} {% endfor %}{% endif %}" style="width: 90px;">Migrate</a> 
 				</div>
 			{% else %}
 				<div class="col-md-4">
@@ -44,9 +44,17 @@
 				<td>Primary Node</td>
 				<td>{{ instance.pnode }}</td>
 			</tr>
+{% if instance.snodes.0 %}
 			<tr>
 				<td>Secondary Node</td>
 				<td>{{ instance.snodes.0 }}</td>
+			</tr>
+{% endif %}
+			<tr>
+				<td>Disk Template</td>
+				<td>
+					{{ instance.disk_template }}
+				</td>
 			</tr>
 			<tr>
 				<td>Default Disk Type</td>
@@ -68,6 +76,12 @@
 					<a data-instance="{{ instance.name }}" data-type="beparam" data-param="spindleUseCount" data-value="{{ instance.beparams.spindle_use + 1 }}" class="paramChange btn btn-default btn-xs"><span class="glyphicon glyphicon-plus-sign"></span></a>
 					<a data-instance="{{ instance.name }}" data-type="beparam" data-param="spindleUseCount" data-value="{{ instance.beparams.spindle_use - 1 }}" class="paramChange btn btn-default btn-xs"><span class="glyphicon glyphicon-minus-sign"></span></a>
 					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>Installed OS</td>
+				<td>
+					{{ instance.os }}
 				</td>
 			</tr>
 			</tbody>
@@ -113,6 +127,23 @@
 			</tr>
 			</tbody>
 			</table>
+			<h3>Disk Settings</h3>
+			<table class="table table-striped" id="diskTable">
+			<thead>
+			<tr>
+				<th>#</th>
+				<th>Size</th>
+			</tr>
+			</thead>
+			<tbody>
+{% for key,size in instance["disk.sizes"] %}
+			<tr>
+				<td>{{ key }}</td>
+				<td>{{ size / 1024 }} GB</td>
+			</tr>
+{% endfor %}
+			</tbody>
+			</table>
 		</div>
 
 		<div class="col-sm-12 col-md-6 col-lg-3">
@@ -142,24 +173,23 @@
 {% endfor %}
 			</tbody>
 			</table>
-			<h3>Disk Settings</h3>
-			<table class="table table-striped" id="diskTable">
+			<h3>Tags</h3>
+			<table class="table table-striped" id="Tags">
 			<thead>
 			<tr>
-				<th>#</th>
-				<th>Size</th>
+				<th>Tag</th>
+				<th>Value</th>
 			</tr>
 			</thead>
 			<tbody>
-{% for key,size in instance["disk.sizes"] %}
+{% for key,value in tags %}
 			<tr>
 				<td>{{ key }}</td>
-				<td>{{ size / 1024 }} GB</td>
+				<td>{{ value }}</td>
 			</tr>
 {% endfor %}
 			</tbody>
 			</table>
-
 		</div>
 		<div class="col-sm-12 col-md-6 col-lg-3">
 			<h3>Spice Settings</h3>
@@ -234,8 +264,9 @@
 	</div>
 
 {% include 'dialogs_instancedetails.html' %}
+{% include 'dialogs_instancemigration.html' %}
 	<script type="text/javascript" charset="utf-8">
-        $(document).ready(function() {
+	$(document).ready(function() {
 		$('#hvparamsTable').dataTable({ "pageLength": 50, "order": [ [0, "asc"] ] });
 		$('#nicEditModal').on('show.bs.modal', function (event) {
 			var button = $(event.relatedTarget);
@@ -289,7 +320,7 @@
 			setInstanceParameter(instance, 'hvparam', hvParam, hvParamValue);
 			$('#hvparamToggleModal').modal('hide');
 		});
-        } );
-        </script>
+	});
+</script>
 
 {% endblock %}

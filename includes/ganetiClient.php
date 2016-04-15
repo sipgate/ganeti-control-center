@@ -171,6 +171,15 @@ class ganetiClient {
 		return $return;
 	}
 
+	function migrateRedudantInstance($instance, $targetNode, $migrationMethod) {
+		$data = array(
+			"target_node" => $targetNode,
+			"mode" => $migrationMethod,
+		);
+		$return = json_decode($this->callApi("PUT","/2/instances/" . $instance . "/migrate", $data),true);
+		return $return;
+	}
+
 	function setClusterParameter($section, $type, $parameter, $value) {
 		$return = -1;
 		switch($section) {

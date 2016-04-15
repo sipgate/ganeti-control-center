@@ -48,6 +48,7 @@ $app->get('/instances(/:filter(/:value))', function($filter = "none", $value = "
 	global $config;
 	$g = new ganetiClient($config["rapi-current"]);
 	$cluster = $g->getClusterInfo();
+	$nodes = $g->getNodes(true);
 	$clusterName = $g->getConfigName();
 	$instances = $g->getInstances(true);
 	$instancesFiltered = array();
@@ -72,7 +73,9 @@ $app->get('/instances(/:filter(/:value))', function($filter = "none", $value = "
 	$app->render('page_instances.html', array( "config" => $config,
 		"clusterName" => $clusterName,
 		"cluster" => $cluster,
+		"nodes" => $nodes,
 		"instances" => $instances,
+		"migrationOptions" => $config["migration"]
 		));
 });
 
@@ -80,6 +83,7 @@ $app->get('/instanceDetails/:h', function($instanceName) use ($app) {
 	global $config;
 	$g = new ganetiClient($config["rapi-current"]);
 	$clusterName = $g->getConfigName();
+	$nodes = $g->getNodes(true);
 	$instance = $g->getInstance($instanceName);
 	if(isset($instance["nic.macs"][0])) {
 		$mac = $instance["nic.macs"][0];
@@ -89,13 +93,28 @@ $app->get('/instanceDetails/:h', function($instanceName) use ($app) {
 	else {
 		$preseedConfigExists = false;
 	}
+	
+	$instance_tags = array();
+	if (sizeof($instance["tags"] > 1)) {
+		for ($i=0; $i < sizeof($instance["tags"]); $i++) {
+			$current_tag = explode(":", $instance["tags"][$i]);
+			$instance_tags[$current_tag[0]]= $current_tag[1];
+		}
+	}
+	else {
+		$instance_tags["Tags"] = "NoSet";
+	}
+
 	$app->render('page_instancedetails.html', array( "config" => $config,
+		"tags" => $instance_tags,
 		"clusterName" => $clusterName,
+		"nodes" => $nodes,
 		"instance" => $instance,
 		"instance_dump" => print_r($instance,true),
 		"preseedConfigExists" => $preseedConfigExists,
 		"vlans" => $config["vlans"][$clusterName],
 		"spiceCa" => $config["rapi-current"]["spice-ca"],
+		"migrationOptions" => $config["migration"]
 		));
 });
 
@@ -285,7 +304,7 @@ $app->get('/getSpiceConfig/:i', function($instance) use ($app) {
 	Header("Content-Type: application/x-virt-viewer");
 	header("Content-disposition: attachment; filename=spice-connection.ini");
 	echo "[virt-viewer]\n";
-        echo "type=spice\n";
+	echo "type=spice\n";
 	echo "host=" . $inst["pnode"] . "\n";
 	if($inst["hvparams"]["spice_use_tls"]) {
 		echo "tls-port=" . $inst["network_port"] . "\n";
@@ -350,6 +369,15 @@ $app->post('/updateNic/:i/:n/:m/:l', function($instance, $nic, $mac, $link) use 
 	global $config;
 	$g = new ganetiClient($config["rapi-current"]);
 	$return = $g->setNicParameters($instance, $nic, $mac, $link);
+	Header("Content-Type: application/json");
+	echo json_encode($return);
+	exit;
+});
+
+$app->post('/migrateRedundantInstance/:i/:n/:m', function($instance, $targetNode, $migrationMethod) use ($app) {
+	global $config;
+	$g = new ganetiClient($config["rapi-current"]);
+	$return = $g->migrateRedudantInstance($instance, $targetNode, $migrationMethod);
 	Header("Content-Type: application/json");
 	echo json_encode($return);
 	exit;

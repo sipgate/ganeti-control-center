@@ -121,7 +121,7 @@
 				},
 				'mem': {
 					'used': {{ stats.instances.memory }},
-					'free': {{ stats.nodes.memfree }}
+					'free': {% if stats.nodes.memfree > 0 %}{{ stats.nodes.memfree }}{% else %}0{% endif %}
 				}
 			},
 {% for instance, data in stats.pernode %}
@@ -136,7 +136,7 @@
 				},
 				'mem': {
 					'used': {{ data.memory }},
-					'free': {{ data.memfree }}
+					'free': {% if data.memfree > 0 %}{{ data.memfree }}{% else %}0{% endif %}
 				}
 			},
 {% endfor %}

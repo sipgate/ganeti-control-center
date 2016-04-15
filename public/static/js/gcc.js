@@ -72,6 +72,10 @@ function setClusterIpolicyParameter(param, value) {
 	$.post ( "/clusterIpolicyParameter/" + param + "/" + value, null, processResult, 'json');
 }
 
+function migrateRedundantInstance(instance, targetNode, migrationMethod) {
+	$.post ( "/migrateRedundantInstance/" + instance + "/" + targetNode + "/" + migrationMethod , null , processResult, 'json');
+}
+
 $( document ).ready(function() {
 	$( ".paramChange" ).click(function() {
 		var instance = $(this).data("instance");
@@ -90,4 +94,27 @@ $( document ).ready(function() {
 		});
 
 	});
+    $('#migrateModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var instance = button.data('instance');
+        var migNodes = button.data('mignodes').trim().split(' ');
+
+        var modal = $(this);
+        modal.find('.modal-title').text("Migrate: " + instance);
+        modal.find('#migrationInstance').val(instance);
+        var dropdown = modal.find('#migrationTargetNode');
+        dropdown.empty();
+        for (var i=0; i < migNodes.length; i++) { 
+            dropdown.append('<option value="' + migNodes[i] + '">' + migNodes[i] + '</option>');
+        }
+    });
+
+    $('#mirgateSubmit').click(function() {
+        var instance = $('#migrationInstance').val();
+        var targetNode = $('#migrationTargetNode').val();
+        var migrationMethod = $('#migrationMethod').val();
+        migrateRedundantInstance(instance, targetNode, migrationMethod);
+        $('#migrateModal').modal('hide');
+    });
+
 });
