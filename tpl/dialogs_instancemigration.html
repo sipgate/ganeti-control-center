@@ -1,0 +1,44 @@
+<!-- Migrate -->
+{% if instance %}
+{% set item = instance %}
+{% endif %}
+<div class="modal fade" tabindex="-1" role="dialog" id="migrateModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Mirgate Instance: {{ item.name }}</h4>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<label for="migmeth">Mirgation Method</label>
+								<select class="form-control" id="migrationMethod" name="migType">
+{% for method in migrationOptions.types %}
+									<option value="{{ method }}">{{ method }}</option>
+{% endfor %}
+								</select>
+							</div>
+							<div class="col-md-4">
+								<label for="node">Node</label>
+								<select class="form-control" id="migrationTargetNode" name="migTagetNode">
+									<!-- add nodes here <option value="{{ snode }}">{{ snode }}</option> -->
+								</select>
+							</div>
+							<div class="col-md-4">
+								<label>&nbsp;</label>
+								<a id="mirgateSubmit" class="btn btn-warning form-control">Migrate</a>
+							</div>
+						</div>
+						<input type="hidden" id="migrationInstance" name="migrationInstance" value="{{ item.name }}" />
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>

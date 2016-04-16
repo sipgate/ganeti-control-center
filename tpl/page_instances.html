@@ -23,7 +23,10 @@
 		<td style="vertical-align: middle;">
 {% if item.oper_state %}
 		<a class="instanceAction btn btn-danger" data-instance="{{ item.name }}" data-instanceaction="shutdown" style="width: 90px;">Shutdown</a>
-		<a class="instanceAction btn btn-warning" data-instance="{{ item.name }}" data-instanceaction="migrate" style="width: 90px;">Migrate</a>
+		<!--<a class="instanceAction btn btn-warning" data-instance="{{ item.name }}" data-instanceaction="migrate" style="width: 90px;">Migrate</a>-->
+{% if item.disk_template in migrationOptions.migrationable_disktypes  %}
+        <a class="btn btn-warning" data-toggle="modal" data-target="#migrateModal" data-instance="{{ item.name }}" data-migNodes="{% if item.disk_template == "sharedfile" %}{% for node in nodes %}{{node.name}} {% endfor %}{% endif %}{% if item.snodes %}{% for node in item.snodes %}{{node}} {% endfor %}{% endif %}" style="width: 90px;">Migrate</a> 
+{% endif %}
 {% else %}
 		<a class="instanceAction btn btn-success" data-instance="{{ item.name }}" data-instanceaction="start" style="width: 90px;">Start</a>
 {% endif %}
@@ -37,7 +40,7 @@
 	$(document).ready(function() {
 		$('#instanceTable').dataTable({ "pageLength": {{ config.instancesPerPage }}, "order": [] });
 
-                $('.confirm-shutdown').confirm( {
+		$('.confirm-shutdown').confirm( {
 			text: "Are you sure you want to shutdown the VM?",
 			title: "Confirmation required",
 			post: true,
@@ -45,7 +48,7 @@
 				$(button).parent('form:first').submit();
 			},
 		});
-                $('.confirm-migrate').confirm( {
+		$('.confirm-migrate').confirm( {
 			text: "Are you sure you want to migrate the VM?",
 			title: "Confirmation required",
 			post: true,
@@ -53,10 +56,9 @@
 				$(button).parent('form:first').submit();
 			},
 		});
-
-        } );
-        </script>
+	} );
+</script>
 
 	</script>
-
+{% include 'dialogs_instancemigration.html' %}
 {% endblock %}
