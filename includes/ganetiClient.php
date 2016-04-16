@@ -171,7 +171,7 @@ class ganetiClient {
 		return $return;
 	}
 
-	function migrateRedudantInstance($instance, $targetNode, $migrationMethod) {
+	function migrateRedundantInstance($instance, $targetNode, $migrationMethod) {
 		$data = array(
 			"target_node" => $targetNode,
 			"mode" => $migrationMethod,

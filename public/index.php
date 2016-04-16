@@ -377,7 +377,7 @@ $app->post('/updateNic/:i/:n/:m/:l', function($instance, $nic, $mac, $link) use 
 $app->post('/migrateRedundantInstance/:i/:n/:m', function($instance, $targetNode, $migrationMethod) use ($app) {
 	global $config;
 	$g = new ganetiClient($config["rapi-current"]);
-	$return = $g->migrateRedudantInstance($instance, $targetNode, $migrationMethod);
+	$return = $g->migrateRedundantInstance($instance, $targetNode, $migrationMethod);
 	Header("Content-Type: application/json");
 	echo json_encode($return);
 	exit;
