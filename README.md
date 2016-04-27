@@ -63,4 +63,4 @@ The RAPI daemon does only run the master node - if your cluster master IP is rea
 [<img src="http://s15.postimg.org/mms00ql93/gcc_clusternodes.jpg">](http://s15.postimg.org/i0vvsdzq3/gcc_clusternodes.png)
 [<img src="http://s8.postimg.org/98xr6m9g1/gcc_instancedetails.jpg">](http://s8.postimg.org/qm81lh4r9/gcc_instancedetails.png)
 [<img src="http://s11.postimg.org/wvg91a467/gcc_instances.jpg">](http://s11.postimg.org/byk0wm65f/gcc_instances.png)
-[<img src="http://s32.postimg.org/apwyrcmh1/gcc_stats.png">](http://s32.postimg.org/apwyrcmh1/gcc_stats.png)
+[<img src="http://s32.postimg.org/rdogtuh8h/gcc_stats.jpg">](http://s32.postimg.org/apwyrcmh1/gcc_stats.png)
