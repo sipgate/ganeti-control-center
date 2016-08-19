@@ -140,6 +140,13 @@
 				</td>
 			</tr>
 {% endfor %}
+            <tr>
+                <td colspan="4">
+                    <div class="pull-right">
+					<a class="btn btn-default btn-xs" data-toggle="modal" data-target="#nicAddModal"><span class="glyphicon glyphicon-plus-sign"></a>
+                    </div>
+                </td>
+            </tr>
 			</tbody>
 			</table>
 			<h3>Disk Settings</h3>
@@ -155,8 +162,20 @@
 			<tr>
 				<td>{{ key }}</td>
 				<td>{{ size / 1024 }} GB</td>
+                <td>
+                    <div class="pull-right">
+                        <a class="btn btn-default btn-xs" data-toggle="modal" data-target="#diskGrowModal" data-diskid="{{ key }}"><span class="glyphicon glyphicon-pencil"></a>
+                    </div>
+                </td>
 			</tr>
 {% endfor %}
+            <tr>
+                <td colspan="3">
+                    <div class="pull-right">
+					<a class="btn btn-default btn-xs" data-toggle="modal" data-target="#diskAddModal"><span class="glyphicon glyphicon-plus-sign"></a>
+                    </div>
+                </td>
+            </tr>
 			</tbody>
 			</table>
 
@@ -257,6 +276,33 @@
 			var mac = $('#nicEditMac').val();
 			updateNic(instance, nicId, mac, link);
 			$('#nicEditModal').modal('hide');
+		});
+		$('#nicAddSubmit').click(function() {
+			var instance = $('#addNicInstance').val();
+			var link = 'br' + $('#nicAddVlan').val();
+			var mac = $('#nicAddMac').val();
+			addNic(instance, mac, link);
+			$('#nicAddModal').modal('hide');
+		});
+		$('#diskGrowModal').on('show.bs.modal', function (event) {
+			var button = $(event.relatedTarget);
+			var diskId = button.data('diskid');
+
+			var modal = $(this);
+			$('#growDiskId').val(diskId);
+		});
+		$('#diskGrowSubmit').click(function() {
+			var instance = $('#growDiskInstance').val();
+            var diskId = $('#growDiskId').val();
+			var amount = $('#diskGrowAmount').val();
+			growDisk(instance, diskId, amount);
+			$('#diskGrowModal').modal('hide');
+		});
+		$('#diskAddSubmit').click(function() {
+			var instance = $('#addDiskInstance').val();
+			var size = $('#diskAddSize').val();
+			addDisk(instance, size);
+			$('#diskAddModal').modal('hide');
 		});
 		$('.hvparamToggle').click(function() {
 			var instance = $(this).data('instance');

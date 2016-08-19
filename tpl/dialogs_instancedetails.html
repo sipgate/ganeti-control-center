@@ -38,6 +38,110 @@
 	</div>
 </div>
 
+<!-- NIC Add Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="nicAddModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Add New NIC</h4>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<label for="mac">MAC</label>
+								<input type="text" class="form-control" id="nicAddMac" name="mac" value="generate">
+							</div>
+							<div class="col-md-4">
+								<label for="vlan">VLAN</label>
+								<select class="form-control" id="nicAddVlan" name="vlan">
+{% for name,vlan in vlans %}
+									<option value="{{ vlan }}">br{{vlan }} ({{ name }})</option>
+{% endfor %}
+								</select>
+							</div>
+							<div class="col-md-4 text-center">
+								<a id="nicAddSubmit" class="btn btn-success form-control">Create NIC</a>
+							</div>
+						</div>
+						<input type="hidden" id="addNicInstance" name="instance" value="{{ instance.name }}" />
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- disk Grow Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="diskGrowModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Grow Existing Disk</h4>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-6">
+								<label for="size">Amount of disk space to add (in GB)</label>
+								<input type="text" class="form-control" id="diskGrowAmount" name="size" value="0">
+							</div>
+							<div class="col-md-6 text-center">
+                                <label for="growDisk">&nbsp;</label>
+								<a id="diskGrowSubmit" name="growDisk" class="btn btn-success form-control">Grow Disk</a>
+							</div>
+						</div>
+						<input type="hidden" id="growDiskInstance" name="instance" value="{{ instance.name }}" />
+                        <input type="hidden" id="growDiskId" name="disk" value="-1" />
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- disk Add Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="diskAddModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Add New disk</h4>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-6">
+								<label for="size">Size (in GB)</label>
+								<input type="text" class="form-control" id="diskAddSize" name="size" value="20">
+							</div>
+							<div class="col-md-6 text-center">
+                                <label for="addDisk">&nbsp;</label>
+								<a id="diskAddSubmit" name="add" class="btn btn-success form-control">Create Disk</a>
+							</div>
+						</div>
+						<input type="hidden" id="addDiskInstance" name="instance" value="{{ instance.name }}" />
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <!-- Generic HVParam Editing/Toggle Modal -->
 <div class="modal fade" tabindex="-1" role="dialog" id="hvparamToggleModal">
 	<div class="modal-dialog">
@@ -82,10 +186,8 @@
 				<p>
 				To use an encrypted spice session, please follow the following steps:
 				</p>
-				<h3>Linux</h3>
+				<h3>Prerequisites</h3>
 				<p>
-				First, install the <strong>remote-viewer</strong> application:
-				<pre>apt-get install virt-viewer</pre>
 				Make sure your local <strong>.spicec</strong> folder exists:
 				<pre>mkdir -p ~/.spicec</pre>
 				Add this Cluster's CA Certificate to your trust store:
@@ -93,10 +195,21 @@
 {{ spiceCa }}
 EOF</pre>
 				</p>
+				<h3>Linux</h3>
+				<p>
+				Install the <strong>remote-viewer</strong> application:
+				<pre>apt-get install virt-viewer</pre>
+				</p>
 				<h3>Mac OS X</h3>
 				<p>
-				First, install the <strong>remote-viewer</strong> application from <a href="http://www.ovirt.org/SPICE_Remote-Viewer_on_OS_X" target="_blank">this</a> URL.
-				From here on, I don't know what to do exactly. :-(
+				Install the <strong>remote-viewer</strong> application from <a href="http://www.ovirt.org/SPICE_Remote-Viewer_on_OS_X" target="_blank">this</a> URL.
+				</p>
+				<p>
+				You can not use the "Spice Console"-Button on OS X as of now. To open a console (do this from your home directory, RemoteViewer uses relative paths which is a bug.):
+				<pre>
+/Applications/RemoteViewer.app/Contents/MacOS/RemoteViewer --spice-ca-file="./spicec/spice_truststore.pem" --spice-host-subject="CN=ganeti.example.com" spice://$PrimaryNode?tls-port=$Port
+				</pre>
+				Replace $PrimaryNode and $Port as seen in the Node Details.
 				</p>
 			</div>
 			<div class="modal-footer">

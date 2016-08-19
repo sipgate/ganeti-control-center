@@ -216,6 +216,53 @@ class ganetiClient {
 		return json_decode($this->callApi("PUT","/2/instances/" . $instance . "/modify", $data), true);
 	}
 
+    function addNic($instance, $mac, $link) {
+		$data = array(
+			"nics" => array(
+				array(
+					"add",
+					-1,
+                    array(
+                        "mac" => $mac,
+						"link" => $link,
+					),
+				),
+			),
+		);
+
+		$origInstance = $this->getInstance($instance);
+
+		return json_decode($this->callApi("PUT","/2/instances/" . $instance . "/modify", $data), true);
+    }
+
+    function addDisk($instance, $size) {
+		$data = array(
+			"disks" => array(
+				array(
+					"add",
+					-1,
+                    array(
+                        "size" => $size . "g"
+					),
+				),
+			),
+		);
+
+		$origInstance = $this->getInstance($instance);
+
+		return json_decode($this->callApi("PUT","/2/instances/" . $instance . "/modify", $data), true);
+    }
+
+    function growDisk($instance, $disk, $amount) {
+        $data = array(
+            "amount" => $amount,
+            "absolute" => false,
+            "wait_for_sync" => false,
+        );
+
+		return json_decode($this->callApi("POST","/2/instances/" . $instance . "/disk/" . $disk . "/grow", $data), true);
+    }
+
 	function getJobs($bulk = false) {
 		if($bulk) {
 			$data = json_decode($this->callApi("GET","/2/jobs",array("bulk" => "1")),true);

@@ -355,6 +355,34 @@ $app->post('/updateNic/:i/:n/:m/:l', function($instance, $nic, $mac, $link) use 
 	exit;
 });
 
+$app->post('/addNic/:i/:m/:l', function($instance, $mac, $link) use ($app) {
+	global $config;
+	$g = new ganetiClient($config["rapi-current"]);
+	$return = $g->addNic($instance, $mac, $link);
+	Header("Content-Type: application/json");
+	echo json_encode($return);
+	exit;
+});
+
+$app->post('/growDisk/:i/:d/:a', function($instance, $disk, $amount) use ($app) {
+	global $config;
+    $g = new ganetiClient($config["rapi-current"]);
+    $amount = $amount * 1024;
+	$return = $g->growDisk($instance, $disk, $amount);
+	Header("Content-Type: application/json");
+	echo json_encode($return);
+	exit;
+});
+
+$app->post('/addDisk/:i/:s', function($instance, $size) use ($app) {
+	global $config;
+	$g = new ganetiClient($config["rapi-current"]);
+	$return = $g->addDisk($instance, $size);
+	Header("Content-Type: application/json");
+	echo json_encode($return);
+	exit;
+});
+
 $app->post('/clusterHvParameter/:t/:p/:v', function($type, $parameter, $value) use ($app) {
 	global $config;
 	$g = new ganetiClient($config["rapi-current"]);

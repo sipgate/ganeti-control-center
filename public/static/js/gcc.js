@@ -64,6 +64,18 @@ function updateNic(instance, nicId, mac, link) {
 	$.post ( "/updateNic/" + instance + "/" + nicId + "/" + mac + "/" + link, null, processResult, 'json')
 }
 
+function addNic(instance, mac, link) {
+	$.post ( "/addNic/" + instance + "/" + mac + "/" + link, null, processResult, 'json')
+}
+
+function growDisk(instance, diskId, amount) {
+	$.post ( "/growDisk/" + instance + "/" + diskId + "/" + amount, null, processResult, 'json')
+}
+
+function addDisk(instance, size) {
+	$.post ( "/addDisk/" + instance + "/" + size, null, processResult, 'json')
+}
+
 function setClusterHvParameter(type, param, value) {
 	$.post ( "/clusterHvParameter/" + type + "/" + param + "/" + value, null, processResult, 'json');
 }
