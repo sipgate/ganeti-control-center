@@ -76,6 +76,10 @@ function addDisk(instance, size) {
 	$.post ( "/addDisk/" + instance + "/" + size, null, processResult, 'json')
 }
 
+function addTag(instance, tag) {
+	$.post ( "/addTag/" + instance + "/" + tag, null, processResult, 'json')
+}
+
 function setClusterHvParameter(type, param, value) {
 	$.post ( "/clusterHvParameter/" + type + "/" + param + "/" + value, null, processResult, 'json');
 }

@@ -72,7 +72,7 @@
 			</tr>
             <tr>
                 <td>Tags</td>
-                <td>{% for tag in instance.tags %} {{ tag }} {% endfor %}</td>
+                <td>{% for tag in instance.tags %} {{ tag }} {% endfor %}<div class="pull-right"><a class="btn btn-default btn-xs" data-toggle="modal" data-target="#tagAddModal"><span class="glyphicon glyphicon-plus-sign"></a></div></td>
             </tr>
 			</tbody>
 			</table>
@@ -287,6 +287,12 @@
 			var mac = $('#nicAddMac').val();
 			addNic(instance, mac, link);
 			$('#nicAddModal').modal('hide');
+		});
+		$('#tagAddSubmit').click(function() {
+			var instance = $('#addTagInstance').val();
+			var tag = $('#tagAddName').val();
+			addTag(instance, tag);
+			$('#tagAddModal').modal('hide');
 		});
 		$('#diskGrowModal').on('show.bs.modal', function (event) {
 			var button = $(event.relatedTarget);

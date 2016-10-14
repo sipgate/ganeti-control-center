@@ -56,7 +56,15 @@ class ganetiClient {
 				curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
 			}
 
-			break;
+            break;
+        case "PUT_W_GET_PARAMS":
+            # this is only here to make the broken "tags" part of RAPI work
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+
+			if ($data)
+				$url = sprintf("%s?%s", $url, http_build_query($data));
+
+            break;
 		default:
 			if ($data)
 				$url = sprintf("%s?%s", $url, http_build_query($data));
@@ -251,6 +259,11 @@ class ganetiClient {
 		$origInstance = $this->getInstance($instance);
 
 		return json_decode($this->callApi("PUT","/2/instances/" . $instance . "/modify", $data), true);
+    }
+
+    function addTag($instance, $tag) {
+        $data["tag"] = $tag;
+        return json_decode($this->callApi("PUT_W_GET_PARAMS","/2/instances/" . $instance . "/tags", $data), true);
     }
 
     function growDisk($instance, $disk, $amount) {

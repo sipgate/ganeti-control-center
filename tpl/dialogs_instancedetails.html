@@ -142,6 +142,37 @@
 	</div>
 </div>
 
+<!-- tag Add Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="tagAddModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Add New Tag</h4>
+			</div>
+			<div class="modal-body">
+				<form>
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-6">
+								<label for="tag">Tag</label>
+								<input type="text" class="form-control" id="tagAddName" name="tag">
+							</div>
+							<div class="col-md-6 text-center">
+                                <label for="addTag">&nbsp;</label>
+								<a id="tagAddSubmit" name="add" class="btn btn-success form-control">Add Tag</a>
+							</div>
+						</div>
+						<input type="hidden" id="addTagInstance" name="instance" value="{{ instance.name }}" />
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 <!-- Generic HVParam Editing/Toggle Modal -->
 <div class="modal fade" tabindex="-1" role="dialog" id="hvparamToggleModal">
 	<div class="modal-dialog">

@@ -383,6 +383,15 @@ $app->post('/addDisk/:i/:s', function($instance, $size) use ($app) {
 	exit;
 });
 
+$app->post('/addTag/:i/:s', function($instance, $tag) use ($app) {
+	global $config;
+	$g = new ganetiClient($config["rapi-current"]);
+	$return = $g->addTag($instance, $tag);
+	Header("Content-Type: application/json");
+	echo json_encode($return);
+	exit;
+});
+
 $app->post('/clusterHvParameter/:t/:p/:v', function($type, $parameter, $value) use ($app) {
 	global $config;
 	$g = new ganetiClient($config["rapi-current"]);
