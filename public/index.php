@@ -273,7 +273,7 @@ $app->get('/setCluster/:h', function($cluster) use ($app) {
 	else {
 		$app->setCookie("clusterIndex", "0", "365 days");
 	}
-	$app->redirect("/clusterNodes");
+	$app->redirect("/instances");
 	exit;
 });
 
