@@ -129,7 +129,12 @@ class ganetiClient {
 	function createInstance($params) {
 		$data = json_decode($this->callApi("POST","/2/instances", $params),true);
 		return $data;
-	}
+    }
+
+    function createMultiInstance($params) {
+        $data = json_decode($this->callApi("POST","/2/instances-multi-alloc", $params),true);
+        return $data;
+    }
 
 	function startInstance($instance) {
 		$data = json_decode($this->callApi("PUT","/2/instances/" . $instance . "/startup"),true);

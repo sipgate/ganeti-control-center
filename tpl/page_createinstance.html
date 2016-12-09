@@ -1,15 +1,26 @@
 {% extends "index.html" %}
 {% block content%}
-	<h1 class="page-header">Create VM</h1>
-	 <form method="POST" action="/createInstance">
+	<h1 class="page-header">Create one or more Instances</h1>
+	 <form role="form" id="createForm" method="POST" action="/createInstance">
 		 <div class="row">
-			<div class="col-md-12">
-				<div class="form-group">
-					<label for="inputVmName">VM Name</label>
-					<input type="text" class="form-control" id="inputVmName" placeholder="FQDN" name="vmName">
-				</div>
+			<div class="col-md-12" id="instanceNameGroup">
+                <div class="entry input-group" style="padding-bottom:10px;">
+                    <input class="form-control" id="inputVmName" name="vmName[]" type="text" placeholder="FQDN" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-success btn-add" type="button">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                    </span>
+                </div>
 			</div>
 		</div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="inputClusterTag">Node Tags (e.g. hbal exclusion tags)</label>
+                    <input class="form-control" id="inputClusterTag" name="clusterTag" type="text" placeholder="a:webservers" />
+                </div>
+            </div>
 		<div class="row">
 			<div class="col-md-4 text-center">
 				<div class="form-group">
@@ -51,5 +62,28 @@
 	$("#inputCpuCount").slider();
 	$("#inputMemory").slider();
 	$("#inputDiskSpace").slider();
+    $(function()
+        {
+            $(document).on('click', '.btn-add', function(e)
+                    {
+                        e.preventDefault();
+
+                        var controlForm = $('#instanceNameGroup'),
+                        currentEntry = $(this).parents('.entry:first'),
+                            newEntry = $(currentEntry.clone()).appendTo(controlForm);
+
+                        newEntry.find('input').val('');
+                        controlForm.find('.entry:not(:last) .btn-add')
+                            .removeClass('btn-add').addClass('btn-remove')
+                            .removeClass('btn-success').addClass('btn-danger')
+                            .html('<span class="glyphicon glyphicon-minus"></span>');
+                    }).on('click', '.btn-remove', function(e)
+                        {
+                            $(this).parents('.entry:first').remove();
+
+                            e.preventDefault();
+                            return false;
+                        });
+        });
 	 </script>
 {% endblock %}

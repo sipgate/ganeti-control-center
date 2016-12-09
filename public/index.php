@@ -185,41 +185,48 @@ $app->get('/createInstance', function() use ($app) {
 
 $app->post('/createInstance', function() use ($app) {
 	global $config;
-	$g = new ganetiClient($config["rapi-current"]);
+    $g = new ganetiClient($config["rapi-current"]);
+
 	$params = array(
-		"__version__" => 1,
-		"conflicts_check" => false,
-		"disk_template" => "drbd",
-		"iallocator" => "hail",
-		"ip_check" => false,
-		"mode" => "create",
-		"name_check" => false,
-		"no_install" => true,
-		"wait_for_sync" => false,
-		"instance_name" => $_POST["vmName"],
-		"os_type" => "debootstrap+default",
-		"beparams" => array(
-			"vcpus" => $_POST["cpuCount"],
-			"memory" => $_POST["memory"] . "m",
-		),
-		"nics" => array(
-			array(
-				"link" => "br" . $_POST["vlan"],
-				"mac" => "generate"
+        "iallocator" => "hail",
+    );
+    $instances = array();
+    foreach($_POST["vmName"] AS $instanceName) {
+	    $instances[] = array(
+			"conflicts_check" => false,
+			"disk_template" => "drbd",
+			"ip_check" => false,
+			"mode" => "create",
+			"name_check" => false,
+			"no_install" => true,
+			"wait_for_sync" => false,
+			"instance_name" => $instanceName,
+            "os_type" => "debootstrap+default",
+            "hypervisor" => "kvm",
+			"beparams" => array(
+				"vcpus" => $_POST["cpuCount"],
+				"memory" => $_POST["memory"],
 			),
-		),
-		"disks" => array(
-			array(
-				"size" => $_POST["diskSpace"] . "g"
+			"nics" => array(
+				array(
+					"link" => "br" . $_POST["vlan"],
+					"mac" => "generate"
+				),
 			),
-		),
-		"hvparams" => array(
-			"kernel_path" => "",
-			"machine_version" => "pc",
-			"nic_type" => "paravirtual"
-		),
-	);
-	$g->createInstance($params);
+			"disks" => array(
+				array(
+					"size" => ($_POST["diskSpace"]*1024)
+				),
+			),
+			"hvparams" => array(
+				"kernel_path" => "",
+				"machine_version" => "pc",
+				"nic_type" => "paravirtual"
+			),
+        );
+    }
+    $params["instances"] = $instances;
+    $g->createMultiInstance($params);
 	$app->redirect("/jobs");
 });
 
