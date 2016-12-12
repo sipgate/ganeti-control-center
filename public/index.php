@@ -222,8 +222,12 @@ $app->post('/createInstance', function() use ($app) {
 				"kernel_path" => "",
 				"machine_version" => "pc",
 				"nic_type" => "paravirtual"
-			),
+            ),
         );
+        if(!empty($_POST["instanceTag"])) {
+            $key = count($instances) - 1;
+            $instances[$key]["tags"] = array($_POST["instanceTag"]);
+        }
     }
     $params["instances"] = $instances;
     $g->createMultiInstance($params);
