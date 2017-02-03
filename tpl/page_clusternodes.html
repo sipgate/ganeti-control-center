@@ -85,6 +85,36 @@
 						</div>
 					</td>
 				</tr>
+				<tr>
+					<td>Max CPUs per VM</td>
+					<td>
+						{{ cluster.ipolicy['minmax'][0]['max']['cpu-count'] }}
+					</td>
+				</tr>
+				<tr>
+					<td>Max NICs per VM</td>
+					<td>
+						{{ cluster.ipolicy['minmax'][0]['max']['nic-count'] }}
+					</td>
+				</tr>
+				<tr>
+					<td>Max Disks per VM</td>
+					<td>
+						{{ cluster.ipolicy['minmax'][0]['max']['disk-count'] }}
+					</td>
+				</tr>
+				<tr>
+					<td>Max Disk Size per VM</td>
+					<td>
+						{{ cluster.ipolicy['minmax'][0]['max']['disk-size'] }}MB
+					</td>
+				</tr>
+				<tr>
+					<td>Max Memory Size per VM</td>
+					<td>
+						{{ cluster.ipolicy['minmax'][0]['max']['memory-size'] }}MB
+					</td>
+				</tr>
 			</tbody>
 		</table>
 		<h3>KVM Migration Settings</h3>
