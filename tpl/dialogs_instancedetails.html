@@ -238,7 +238,7 @@ EOF</pre>
 				<p>
 				You can not use the "Spice Console"-Button on OS X as of now. To open a console (do this from your home directory, RemoteViewer uses relative paths which is a bug.):
 				<pre>
-/Applications/RemoteViewer.app/Contents/MacOS/RemoteViewer --spice-ca-file="./spicec/spice_truststore.pem" --spice-host-subject="CN=ganeti.example.com" spice://{{ instance.pnode }}?tls-port={{ instance.network_port }}
+/Applications/RemoteViewer.app/Contents/MacOS/RemoteViewer --spice-ca-file="~/.spicec/spice_truststore.pem" --spice-host-subject="CN=ganeti.example.com" spice://{{ instance.pnode }}?tls-port={{ instance.network_port }}
 				</pre>
 				</p>
 			</div>
