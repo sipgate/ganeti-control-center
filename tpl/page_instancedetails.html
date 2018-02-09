@@ -222,6 +222,10 @@
 					{{ instance.hvparams.spice_password_file ? 'Yes' : 'No' }}
 				</td>
 			</tr>
+            <tr>
+                <td>URL</td>
+                <td><a href="spice://{{ instance.pnode }}?{{ instance.hvparams.spice_use_tls ? 'tls-port' : 'port' }}={{ instance.network_port }}">spice://{{ instance.pnode|length > 5 ? instance.pnode|slice(0, 5) ~ '...' : instance.pnode  }}?{{ instance.hvparams.spice_use_tls ? 'tls-port' : 'port' }}={{ instance.network_port }}</a></td>
+            </tr>
 			</tbody>
 			</table>
 		</div>
