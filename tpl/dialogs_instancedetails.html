@@ -236,9 +236,9 @@ EOF</pre>
 				Install the <strong>remote-viewer</strong> application from <a href="http://www.ovirt.org/SPICE_Remote-Viewer_on_OS_X" target="_blank">this</a> URL.
 				</p>
 				<p>
-				You can not use the "Spice Console"-Button on OS X as of now. To open a console (do this from your home directory, RemoteViewer uses relative paths which is a bug.):
+				You can not use the "Spice Console"-Button on OS X as of now. To open a console (do not use relative paths in command line arguments, it won't work):
 				<pre>
-/Applications/RemoteViewer.app/Contents/MacOS/RemoteViewer --spice-ca-file="~/.spicec/spice_truststore.pem" --spice-host-subject="CN=ganeti.example.com" spice://{{ instance.pnode }}?tls-port={{ instance.network_port }}
+/Applications/RemoteViewer.app/Contents/MacOS/RemoteViewer --spice-ca-file="/User/$USER/.spicec/spice_truststore.pem" --spice-host-subject="CN=ganeti.example.com" spice://{{ instance.pnode }}?tls-port={{ instance.network_port }}
 				</pre>
 				</p>
 			</div>
