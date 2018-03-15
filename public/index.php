@@ -17,10 +17,9 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-require_once('../includes/Twig/Autoloader.php');
-require_once('../includes/Slim/Slim.php');
+require_once('../vendor/autoload.php');
 
-require_once('../config/config.inc.php');
+require_once('/etc/ganeti-control-center/config.inc.php');
 require_once('../includes/ganetiClient.php');
 
 \Slim\Slim::registerAutoloader();
@@ -253,7 +252,7 @@ $app->post('/changeInstanceStatus/:h', function($instance) use ($app) {
 		if(!$inst["oper_state"]) {
 			$mac = $inst["nic.macs"][0];
 			$filename = "01-" . str_replace(":","-",$mac);
-			if(copy("../config/pxe-boot-template.txt","/var/lib/tftpboot/pxelinux.cfg/" . $filename)) {
+			if(copy("/etc/ganeti-control-center/pxe-boot-template.txt","/var/lib/tftpboot/pxelinux.cfg/" . $filename)) {
 				$return = $g->startInstance($instance);
 			}
 		}

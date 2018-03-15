@@ -1,0 +1,4 @@
+includes    usr/share/ganeti-control-center
+public      usr/share/ganeti-control-center
+tpl         usr/share/ganeti-control-center
+vendor      /usr/share/ganeti-control-center

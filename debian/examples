@@ -1,0 +1,3 @@
+config/config.inc.php.dist
+config/pxe-boot-template.txt.dist
+examples/*

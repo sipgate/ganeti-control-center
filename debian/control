@@ -1,0 +1,13 @@
+Source: ganeti-control-center
+Section: web
+Priority: optional
+Maintainer: Rudolph Bott <bott@sipgate.de>
+Build-Depends: debhelper (>= 9), pkg-php-tools, composer-php
+Standards-Version: 3.9.5
+
+Package: ganeti-control-center
+Architecture: all
+Depends: ${misc:Depends}, php5, php5-json, php5-curl
+Description: Ganeti Control Center is a PHP based web frontend to the Ganeti REST API (RAPI)
+ Ganeti Control Center is a PHP based web frontend to the Ganeti REST API (RAPI), allowing you to
+ create and manage instances as well as migrating them between Ganeti nodes.

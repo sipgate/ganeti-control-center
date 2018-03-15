@@ -1,0 +1,10 @@
+{
+    "require": {
+        "slim/slim": "2.*",
+        "twig/twig": "v1.*",
+        "slim/views": "*",
+        "twitter/bootstrap": "3.*",
+        "datatables/datatables": "*",
+        "components/jquery": "*"
+    }
+}

@@ -1,0 +1,5 @@
+ganeti-control-center (0.1) unstable; urgency=low
+
+  * Initial debian package release
+
+ -- Rudolph Bott <bott@sipgate.de>  Wed, 14 Mar 2018 08:38:12 +0100
