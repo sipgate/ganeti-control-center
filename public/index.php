@@ -80,6 +80,7 @@ $app->get('/instanceDetails/:h', function($instanceName) use ($app) {
 	$g = new ganetiClient($config["rapi-current"]);
 	$clusterName = $g->getConfigName();
 	$instance = $g->getInstance($instanceName);
+	$pageTitle = $instanceName;
 	if(isset($instance["nic.macs"][0])) {
 		$mac = $instance["nic.macs"][0];
 		$filename = "01-" . str_replace(":","-",$mac);
@@ -90,6 +91,7 @@ $app->get('/instanceDetails/:h', function($instanceName) use ($app) {
 	}
 	$app->render('page_instancedetails.html', array( "config" => $config,
 		"clusterName" => $clusterName,
+		"pageTitle" => $pageTitle,
 		"instance" => $instance,
 		"instance_dump" => print_r($instance,true),
 		"preseedConfigExists" => $preseedConfigExists,

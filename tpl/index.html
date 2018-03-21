@@ -8,7 +8,7 @@
     <meta name="author" content="sipgate GmbH">
     <link rel="icon" href="favicon.ico">
 
-    <title>Ganeti Control Center - {{ clusterName }}</title>
+    <title>{% if pageTitle is defined %}{{ pageTitle }}{% else %}Ganeti Control Center - {{ clusterName }}{% endif %}</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
