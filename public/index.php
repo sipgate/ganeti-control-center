@@ -22,38 +22,44 @@ require_once('../vendor/autoload.php');
 require_once('/etc/ganeti-control-center/config.inc.php');
 require_once('../includes/ganetiClient.php');
 
-\Slim\Slim::registerAutoloader();
+$app = new \Slim\App();
 
-$app = new \Slim\Slim(array(
-	'templates.path' => '../tpl'
-));
+$container = $app->getContainer();
+$container['view'] = function ($c) {
+	$view = new \Slim\Views\Twig('../tpl/');
 
-$app->view(new \Slim\Views\Twig());
-$app->view->parserExtensions = array(new \Slim\Views\TwigExtension());
+	// Instantiate and add Slim specific extension
+	$basePath = rtrim(str_ireplace('index.php', '', $c['request']->getUri()->getBasePath()), '/');
+	$view->addExtension(new \Slim\Views\TwigExtension($c['router'], $basePath));
 
-$clusterIndex = $app->getCookie('clusterIndex');
-if(!isset($clusterIndex) || !isset($config["rapi"][$clusterIndex])) {
-	$clusterIndex = 0;
-	$app->setCookie('clusterIndex', '0', '365 days');
+	return $view;
+};
+
+if(isset($_COOKIE["clusterIndex"]) && isset($config["rapi"][ $_COOKIE["clusterIndex"] ])) {
+    $clusterIndex = $_COOKIE["clusterIndex"];
+}
+else {
+    $clusterIndex = 0;
 }
 $config["rapi-current"] = $config["rapi"][$clusterIndex];
 
+setcookie("clusterIndex", $clusterIndex, strtotime('+365 days'));
 
-$app->get('/', function() use ($app) {
-	$app->redirect("/instances");
+$app->get('/', function($req, $res, $args) use ($app) {
+	return $res->withStatus(302)->withHeader("Location", "/instances");
 });
 
-$app->get('/instances(/:filter(/:value))', function($filter = "none", $value = "") use ($app) {
+$app->get('/instances[/{filter}[/{value}]]', function($req, $res, $args) use ($app) {
 	global $config;
 	$g = new ganetiClient($config["rapi-current"]);
 	$cluster = $g->getClusterInfo();
 	$clusterName = $g->getConfigName();
 	$instances = $g->getInstances(true);
 	$instancesFiltered = array();
-	switch($filter) {
+	switch($args["filter"]) {
 	case "byPrimaryNode":
 		for($i = 0; $i < count($instances); $i++) {
-			if($instances[$i]["pnode"] == $value) {
+			if($instances[$i]["pnode"] == $args["value"]) {
 				$instancesFiltered[] = $instances[$i];
 			}
 		}
@@ -61,14 +67,14 @@ $app->get('/instances(/:filter(/:value))', function($filter = "none", $value = "
 		break;
 	case "bySecondaryNode":
 		for($i = 0; $i < count($instances); $i++) {
-			if($instances[$i]["snodes"][0] == $value) {
+			if($instances[$i]["snodes"][0] == $args["value"]) {
 				$instancesFiltered[] = $instances[$i];
 			}
 		}
 		$instances = $instancesFiltered;
 		break;
 	}
-	$app->render('page_instances.html', array( "config" => $config,
+	$this->view->render($response, 'page_instances.html', array( "config" => $config,
 		"clusterName" => $clusterName,
 		"cluster" => $cluster,
 		"instances" => $instances,
@@ -89,7 +95,7 @@ $app->get('/instanceDetails/:h', function($instanceName) use ($app) {
 	else {
 		$preseedConfigExists = false;
 	}
-	$app->render('page_instancedetails.html', array( "config" => $config,
+	$app->view->render('page_instancedetails.html', array( "config" => $config,
 		"clusterName" => $clusterName,
 		"pageTitle" => $pageTitle,
 		"instance" => $instance,
@@ -118,7 +124,7 @@ $app->get('/clusterNodes', function() use ($app) {
 			}
 		}
 	}
-	$app->render('page_clusternodes.html', array( "config" => $config,
+	$app->view->render('page_clusternodes.html', array( "config" => $config,
 		"clusterName" => $clusterName,
 		"cluster" => $cluster,
 		"nodes" => $nodes,
@@ -132,7 +138,7 @@ $app->get('/jobs', function() use ($app) {
 	$cluster = $g->getClusterInfo();
 	$clusterName = $g->getConfigName();
 	$jobs = array_reverse($g->getJobs(true));
-	$app->render('page_jobs.html', array( "config" => $config,
+	$app->view->render('page_jobs.html', array( "config" => $config,
 		"clusterName" => $clusterName,
 		"cluster" => $cluster,
 		"jobs" => $jobs));
@@ -143,7 +149,7 @@ $app->get('/jobDetails/:h', function($jobid) use ($app) {
 	$g = new ganetiClient($config["rapi-current"]);
 	$clusterName = $g->getConfigName();
 	$job = $g->getJob($jobid);
-	$app->render('page_jobdetails.html', array( "config" => $config,
+	$app->view->render('page_jobdetails.html', array( "config" => $config,
 		"clusterName" => $clusterName,
 		"job" => $job,
 		"job_dump" => print_r($job,true)));
@@ -177,7 +183,7 @@ $app->get('/createInstance', function() use ($app) {
 	$g = new ganetiClient($config["rapi-current"]);
 	$cluster = $g->getClusterInfo();
 	$clusterName = $g->getConfigName();
-	$app->render('page_createinstance.html', array( "config" => $config,
+	$app->view->render('page_createinstance.html', array( "config" => $config,
 		"clusterName" => $clusterName,
 		"vlans" => $config["vlans"][$clusterName],
 		"cluster" => $cluster,
@@ -429,7 +435,7 @@ $app->get('/statistics', function() use ($app) {
 	$clusterName = $g->getConfigName();
 	$stats = $g->getStats();
 
-	$app->render('page_statistics.html', array( "config" => $config,
+	$app->view->render('page_statistics.html', array( "config" => $config,
 		"clusterName" => $clusterName,
 		"vlans" => $config["vlans"][$clusterName],
 		"cluster" => $cluster,
