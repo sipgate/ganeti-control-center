@@ -322,6 +322,7 @@ class ganetiClient {
 		$stats["node-count"] = 0;
 		$stats["nodes"]["memory"] = 0;
 		$stats["nodes"]["disk"] = 0;
+		$stats["nodes"]["diskfree"] = 0;
 		$stats["nodes"]["cpus"] = 0;
 
 
@@ -359,6 +360,7 @@ class ganetiClient {
 			$stats["node-count"]++;
 			$stats["nodes"]["memory"] += $node["mtotal"];
 			$stats["nodes"]["disk"] += $node["dtotal"];
+			$stats["nodes"]["diskfree"] += $node["dfree"];
 			$stats["nodes"]["cpus"] += $node["ctotal"];
 
 			# save per-node data
@@ -369,7 +371,6 @@ class ganetiClient {
 
 		# calculate memory/disk diffs
 		$stats["nodes"]["memfree"] = $stats["nodes"]["memory"] - $stats["instances"]["memory"];
-		$stats["nodes"]["diskfree"] = $stats["nodes"]["disk"] - $stats["instances"]["disk"];
 		foreach($stats["pernode"] AS $node => $data) {
 			@$stats["pernode"][$node]["memfree"] = $data["memtotal"] - $data["memory"];
 			@$stats["pernode"][$node]["diskfree"] = $data["disktotal"] - $data["disk"];
