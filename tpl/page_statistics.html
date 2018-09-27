@@ -1,6 +1,6 @@
 {% extends "index.html" %}
 {% block content%}
-	<h1 class="page-header">Cluster Statistics</h1>
+	<h1 class="page-header">Cluster Statistik</h1>
 	<div class="row">
 		<div class="col-md-2 text-center">
 			<div class="panel panel-default">
@@ -15,7 +15,7 @@
 		<div class="col-md-2 text-center">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<h3 class="panel-title">Instances</h3>
+					<h3 class="panel-title">VMs</h3>
 				</div>
 				<div class="panel-body">
 					<h1>{{ stats["instance-count"] }}</h1>
@@ -25,7 +25,7 @@
 		<div class="col-md-2 text-center">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<h3 class="panel-title">CPU Cores</h3>
+					<h3 class="panel-title">Nodes CPU Kerne</h3>
 				</div>
 				<div class="panel-body">
 					<h1>{{ stats.nodes.cpus }}</h1>
@@ -35,27 +35,28 @@
 		<div class="col-md-2 text-center">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<h3 class="panel-title">Disk Space</h3>
+					<h3 class="panel-title">Speicherplatz</h3>
 				</div>
 				<div class="panel-body">
-					<h1 class="prettyPrintBytes">{{ stats.nodes.disk }}</h1>
+					<h1 class="prettyPrintBytes">{{ (stats.nodes.disk / 1048576)|number_format(2, ',', '.') }} TB</h1><p>(lokal verbaut)</p>
+					<h1 class="prettyPrintBytes">{{ ((stats.instances.disk + stats.nodes.diskfree - stats.nodes.disk) / 1048576)|number_format(2, ',', '.') }} TB</h1><p>(extern vergeben)</p>
 				</div>
 			</div>
 		</div>
 		<div class="col-md-2 text-center">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<h3 class="panel-title">Memory</h3>
+					<h3 class="panel-title">RAM</h3>
 				</div>
 				<div class="panel-body">
-					<h1 class="prettyPrintBytes">{{ stats.nodes.memory }}</h1>
+					<h1 class="prettyPrintBytes">{{ (stats.nodes.memory / 1024)|number_format(1, ',', '.') }} GB</h1>
 				</div>
 			</div>
 		</div>
 		<div class="col-md-2 text-center">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<h3 class="panel-title"> Min/Avg/Max Inst. per Node</h3>
+					<h3 class="panel-title">Min/Norm/Max VMs pro Node</h3>
 				</div>
 				<div class="panel-body">
 					<h1>{{ stats["min-inst-per-node"] }} / {{ stats["avg-inst-per-node"] }} / {{ stats["max-inst-per-node"] }}</h1>
@@ -63,138 +64,236 @@
 			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-md-12">
-			<label for="nodeSelect">Cluster / Node auswählen:</label>
-			<select id="nodeSelect">
-				<option value="clusterWideStats">Cluster</option>
-{% for instance, data in stats.pernode %}
-				<option value="{{ instance }}">{{ instance }}</option>
-{% endfor %}
-			</select>
-		</div>
-	</div>
-	<div class="row">
+	<div class="row"><h3>Cluster</h3>
 		<div class="col-md-4 text-center">
-			<div class="panel panel-default">
+			<div class="panel panel-default" style="width:400px; height:450px;">
 				<div class="panel-heading">
-					<h3 class="panel-title">Node vs Instance CPUs</h3>
+					<h3 class="panel-title">VM vgl. Nodes CPUs</h3>
 				</div>
 				<div class="panel-body" id="cpugraph">
-					
+					<canvas id="cpuBar" width="400" height="400"></canvas>
 				</div>
 			</div>
 		</div>
 		<div class="col-md-4 text-center">
-			<div class="panel panel-default">
+			<div class="panel panel-default" style="width:400px; height:450px;">
 				<div class="panel-heading">
-					<h3 class="panel-title">Disk Total vs. Disk Used</h3>
+					<h3 class="panel-title">vergebener (global) vgl. freier Speicherplatz (lokal)</h3>
 				</div>
 				<div class="panel-body" id="diskgraph">
-					
+				<canvas id="diskBar" width="400" height="400"></canvas>	
 				</div>
 			</div>
 		</div>
 		<div class="col-md-4 text-center">
-			<div class="panel panel-default">
+			<div class="panel panel-default" style="width:400px; height:450px;">
 				<div class="panel-heading">
-					<h3 class="panel-title">Memory Total vs. Memory Used</h3>
+					<h3 class="panel-title">vergebener vgl. freier RAM</h3>
 				</div>
 				<div class="panel-body" id="memgraph">
-					
+					<canvas id="ramBar" width="400" height="400"></canvas>
 				</div>
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-	<script type="text/javascript">
-		google.charts.load('current', {'packages':['corechart']});
-		var chartData = {
-			'clusterWideStats': {
-				'cpus': {
-					'virtual': {{ stats.instances.cpus }},
-					'real': {{ stats.nodes.cpus }}
-				},
-				'disk': {
-					'used': {{ stats.instances.disk }},
-					'free': {{ stats.nodes.diskfree }}
-				},
-				'mem': {
-					'used': {{ stats.instances.memory }},
-					'free': {{ stats.nodes.memfree }}
-				}
-			},
 {% for instance, data in stats.pernode %}
-			'{{ instance }}': {
-				'cpus': {
-					'virtual': {{ data.vcpus }},
-					'real': {{ data.cpus }},
-				},
-				'disk': {
-					'used': {{ data.disk }},
-					'free': {{ data.diskfree }}
-				},
-				'mem': {
-					'used': {{ data.memory }},
-					'free': {{ data.memfree }}
-				}
-			},
+	<div class="row"><h3>{{ instance|slice(0,7) }}</h3>
+                <div class="col-md-4 text-center">
+                        <div class="panel panel-default" style="width:400px; height:450px;">
+                                <div class="panel-heading">
+                                        <h3 class="panel-title">VM vgl. {{ instance|slice(0,7) }} CPUs</h3>
+                                </div>
+                                <div class="panel-body" id="cpugraph">
+                                        <canvas id="{{ instance|slice(0,7) }}CpuBar" width="400" height="400"></canvas>
+                                </div>
+                        </div>
+                </div>
+                <div class="col-md-4 text-center">
+                        <div class="panel panel-default" style="width:400px; height:450px;">
+                                <div class="panel-heading">
+                                        <h3 class="panel-title">vergebener (global) vgl. freier Speicherplatz (lokal)</h3>
+                                </div>
+                                <div class="panel-body" id="diskgraph">
+                                <canvas id="{{ instance|slice(0,7) }}DiskBar" width="400" height="400"></canvas>
+                                </div>
+                        </div>
+                </div>
+                <div class="col-md-4 text-center">
+                        <div class="panel panel-default" style="width:400px; height:450px;">
+                                <div class="panel-heading">
+                                        <h3 class="panel-title">vergebener vgl. freier RAM</h3>
+                                </div>
+                                <div class="panel-body" id="memgraph">
+                                        <canvas id="{{ instance|slice(0,7) }}RamBar" width="400" height="400"></canvas>
+                                </div>
+                        </div>
+                </div>
+        </div>
 {% endfor %}
-		};
+	<script>
+var ctx = document.getElementById("cpuBar").getContext('2d');
+var cpuBar = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ["vCPUs", "CPU"],
+        datasets: [{
+            label: 'Anzahl',
+            data: [{{ stats.instances.cpus }}, {{ stats.nodes.cpus }}],
+            backgroundColor: [
+		'rgba(255, 167, 38, 0.7)',
+                'rgba(146, 208, 152, 0.7)'
+            ]
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});
 
-		function drawCharts(data,node) {
-			// set options for column charts
-			var options = { legend: { position: 'none' }, vAxis: { baseline: 0 } };
+var ctx = document.getElementById("diskBar").getContext('2d');
+var diskBar = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ["Speicher"],
+        datasets: [{
+            label: 'belegter Speicher in TB',
+            backgroundColor: 'rgba(255, 167, 38, 0.7)',
+            data: [
+		{{ (stats.instances.disk/1048576)|number_format(2, '.', '') }}
+            ]
+	}, {
+            label: 'freier Speicher in TB',
+            backgroundColor: 'rgba(146, 208, 152, 0.7)',
+            data: [  
+		{{ (stats.nodes.diskfree/1048576)|number_format(2, '.', '') }}
+            ]
+        }]
+    },
+    options: {
+        scales: {
+            xAxes: [{
+		stacked: true,
+                ticks: {
+                    beginAtZero:true
+                }
+            }],
+            yAxes: [{
+		stacked: true
+            }]
+        }
+    }
+});
 
-			// prepare CPU column chart
-			var cpuData = new google.visualization.arrayToDataTable([
-				["Type", "Value", { role: "style" } ],
-				['virtual', data[node]['cpus']['virtual'] , 'FireBrick'],
-				['real', data[node]['cpus']['real'] , 'DarkSeaGreen']
-			]);
-			var chart = new google.visualization.ColumnChart(document.getElementById('cpugraph'));
-			chart.draw(cpuData, options);
+var ctx = document.getElementById("ramBar").getContext('2d');
+var ramBar = new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: ["RAM-Auslastung"],
+        datasets: [{
+            data: [
+		{{ (stats.instances.memory/1024)|number_format(1, '.', ',') }},
+		{{ (stats.nodes.mfree/1024)|number_format(1, '.', ',') }},
+            ],
+            backgroundColor: [
+		'rgba(255, 167, 38, 0.7)',
+                'rgba(146, 208, 152, 0.7)'
+            ],
+            label: 'label'
+        }],
+	labels: [
+            'belegter RAM in GB',
+            'freier RAM in GB'
+	]
+    }
+});
+{% for instance, data in stats.pernode %}
+var ctx = document.getElementById("{{ instance|slice(0,7) }}CpuBar").getContext('2d');
+var cpuBar = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ["vCPUs", "CPU"],
+        datasets: [{
+            label: 'Anzahl',
+            data: [{{ data.vcpus }}, {{ data.cpus }}],
+            backgroundColor: [
+                'rgba(255, 167, 38, 0.7)',
+                'rgba(146, 208, 152, 0.7)'
+            ]
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});
 
-			// set options for pie charts
-			var options = { slices: { 0: { color: 'FireBrick' }, 1: { color: 'DarkSeaGreen' } } };
+var ctx = document.getElementById("{{ instance|slice(0,7) }}DiskBar").getContext('2d');
+var diskBar = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ["Speicher"],
+        datasets: [{
+            label: 'belegter Speicher in TB',
+            backgroundColor: 'rgba(255, 167, 38, 0.7)',
+            data: [
+                {{ (data.disk/1048576)|number_format(1, '.', '') }}
+            ]
+        }, {
+            label: 'freier Speicher in TB',
+            backgroundColor: 'rgba(146, 208, 152, 0.7)',
+            data: [  
+                {{ (data.diskfree/1048576)|number_format(1, '.', '') }}
+            ]
+        }]
+    },
+    options: {
+        scales: {
+            xAxes: [{
+                stacked: true,
+                ticks: {
+                    beginAtZero:true
+                }
+            }],
+            yAxes: [{
+                stacked: true
+            }]
+        }
+    }
+});
 
-			// prepare disk space pie chart
-			var diskData = new google.visualization.DataTable();
-			diskData.addColumn('string', 'Description');
-			diskData.addColumn('number', 'Memory');
-			diskData.addRows([
-				['Used', data[node]['disk']['used']],
-				['Free', data[node]['disk']['free']]
-			]);
-			var chart = new google.visualization.PieChart(document.getElementById('diskgraph'));
-			chart.draw(diskData, options);
-
-			// prepare memory pie chart
-			var memData = new google.visualization.DataTable();
-			memData.addColumn('string', 'Description');
-			memData.addColumn('number', 'Memory');
-			memData.addRows([
-				['Used', data[node]['mem']['used']],
-				['Free', data[node]['mem']['free']]
-			]);
-			var chart = new google.visualization.PieChart(document.getElementById('memgraph'));
-			chart.draw(memData, options);
-		}
-
-		$( document ).ready(function() {
-			$(".prettyPrintBytes").each(function() {
-				var size = $(this).text();
-				$(this).html(bytesToSize(size));
-			});
-
-			$("#nodeSelect").change(function() {
-				var val = $(this).val();
-				drawCharts(chartData,val);
-			});
-		});
-
-		google.charts.setOnLoadCallback(function() {
-			drawCharts(chartData,'clusterWideStats');
-		});
+var ctx = document.getElementById("{{ instance|slice(0,7) }}RamBar").getContext('2d');
+var ramBar = new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: ["RAM-Auslastung"],
+        datasets: [{
+            data: [
+                {{ (data.memory/1024)|number_format(1, '.', ',') }},
+                {{ (data.memfree/1024)|number_format(1, '.', ',') }},
+            ],
+            backgroundColor: [
+                'rgba(255, 167, 38, 0.7)',
+                'rgba(146, 208, 152, 0.7)'
+            ],
+            label: 'label'
+        }],
+        labels: [
+            'belegter RAM in GB',
+            'freier RAM in GB'
+        ]
+    }
+});
+{% endfor %}
 	</script>
 {% endblock %}
