@@ -74,7 +74,9 @@ class ganetiClient {
 		curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-		curl_setopt($curl, CURLOPT_USERPWD, $this->config["user"] . ":" . $this->config["password"]);
+		if(isset($this->config["user"])) {
+			curl_setopt($curl, CURLOPT_USERPWD, $this->config["user"] . ":" . $this->config["password"]);
+		}
 
 		curl_setopt($curl, CURLOPT_URL, "https://" . $this->config["host"] . ":5080" . $url);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -141,8 +143,11 @@ class ganetiClient {
 		return $data;
 	}
 
-	function shutdownInstance($instance) {
-		$data = json_decode($this->callApi("PUT","/2/instances/" . $instance . "/shutdown"),true);
+    function shutdownInstance($instance, $timeout = 120) {
+        $params = array(
+            "timeout" => $timeout
+        );
+		$data = json_decode($this->callApi("PUT","/2/instances/" . $instance . "/shutdown", $params),true);
 		return $data;
 	}
 
