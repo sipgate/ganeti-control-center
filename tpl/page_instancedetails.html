@@ -7,7 +7,8 @@
 			<div class="row">
 			{% if instance.oper_state %}
 				<div class="col-md-4">
-					<a class="instanceAction btn btn-danger" data-instance="{{ instance.name }}" data-instanceaction="shutdown" style="width: 90px;">Shutdown</a>
+					<a class="instanceAction btn btn-warning" data-instance="{{ instance.name }}" data-instanceaction="shutdown" style="width: 90px;">Shutdown</a>
+					<a class="instanceAction btn btn-danger" data-instance="{{ instance.name }}" data-instanceaction="kill" style="width: 90px;">Kill</a>
 				</div>
 				<div class="col-md-4">
 					<a class="btn btn-primary" href="/getSpiceConfig/{{ instance.name }}" target="_blank">Spice Console</a>

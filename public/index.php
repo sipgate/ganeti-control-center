@@ -246,6 +246,9 @@ $app->post('/changeInstanceStatus/:h', function($instance) use ($app) {
 	case "shutdown":
 		$return = $g->shutdownInstance($instance);
 		break;
+	case "kill":
+		$return = $g->shutdownInstance($instance,0);
+		break;
 	case "migrate":
 		$return = $g->migrateInstance($instance);
 		break;
