@@ -298,7 +298,7 @@ $app->get('/getSpiceConfig/:i', function($instance) use ($app) {
 	$inst = $g->getInstance($instance);
 	
 	Header("Content-Type: application/x-virt-viewer");
-	header("Content-disposition: attachment; filename=spice-connection.ini");
+	header("Content-disposition: attachment; filename=spice-connection.vv");
 	echo "[virt-viewer]\n";
         echo "type=spice\n";
 	echo "host=" . $inst["pnode"] . "\n";
