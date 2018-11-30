@@ -14,13 +14,24 @@
                 </div>
 			</div>
 		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="form-group">
+					<div class="checkbox">
+						<label>
+						  <input type="checkbox" name="distributeInstances" value="true" id="distributeInstancesCheckbox" disabled> Distribute instances across cluster (needs at least two instances!)
+						</label>
+					  </div>
+				</div>
+			</div>
+		</div>
         <div class="row">
-            <div class="col-md-12">
-                <div class="form-group">
-                    <label for="inputInstanceTag">Instance Tag (e.g. hbal exclusion tags)</label>
-                    <input class="form-control" id="inputInstanceTag" name="instanceTag" type="text" placeholder="a:webservers" />
-                </div>
-            </div>
+			<div class="col-md-12">
+				<div class="form-group">
+					<input class="form-control" id="inputInstanceTag" name="instanceTag" type="text" placeholder="Instance Tag (optional)" />
+				</div>
+			</div>
+		</div>
 		<div class="row">
 			<div class="col-md-4 text-center">
 				<div class="form-group">
@@ -67,6 +78,8 @@
             $(document).on('click', '.btn-add', function(e)
                     {
                         e.preventDefault();
+
+						$('#distributeInstancesCheckbox').removeAttr("disabled");
 
                         var controlForm = $('#instanceNameGroup'),
                         currentEntry = $(this).parents('.entry:first'),

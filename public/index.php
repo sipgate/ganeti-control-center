@@ -191,7 +191,14 @@ $app->post('/createInstance', function() use ($app) {
 	$params = array(
         "iallocator" => "hail",
     );
-    $instances = array();
+	$instances = array();
+	$instanceTags = array();
+	if(isset($_POST["distributeInstances"]) && $_POST["distributeInstances"] === "true") {
+		$instanceTags[] = $config["rapi-current"]["exclusion-tag"] . ":" . uniqid();
+	}
+	if(!empty($_POST["instanceTag"])) {
+		$instanceTags[] = $_POST["instanceTag"];
+	}
     foreach($_POST["vmName"] AS $instanceName) {
 	    $instances[] = array(
 			"conflicts_check" => false,
@@ -225,11 +232,11 @@ $app->post('/createInstance', function() use ($app) {
 				"nic_type" => "paravirtual"
             ),
         );
-        if(!empty($_POST["instanceTag"])) {
+        if(!empty($instanceTags)) {
             $key = count($instances) - 1;
-            $instances[$key]["tags"] = array($_POST["instanceTag"]);
+            $instances[$key]["tags"] = $instanceTags;
         }
-    }
+	}
     $params["instances"] = $instances;
     $g->createMultiInstance($params);
 	$app->redirect("/jobs");

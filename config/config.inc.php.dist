@@ -29,6 +29,7 @@ $config["rapi"][] = array(
 	"user" => "gcc",
 	"password" => "password",
 	"spice-ca" => "",		# this holds the contents of /var/lib/ganeti/spice-ca.pem
+	"exclusion-tag" => "a"
 	);
 
 # repeat the above block to add multiple clusters
