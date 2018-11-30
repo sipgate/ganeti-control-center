@@ -51,6 +51,15 @@ The RAPI daemon does only run the master node - if your cluster master IP is rea
 * point your webserver's root to ```ganeti-control-center/public```
 * configure HTTPS + LDAP auth in your webserver
 
+## GCC Development
+
+You can use docker to run GCC locally (this will expose the web interface on localhost:8080):
+```
+docker build -t gcc-dev .
+docker run -p 8080:80 -v $PWD:/var/www/html -v $PWD/config:/etc/ganeti-control-center gcc-dev
+```
+Please remember to provide a working `config.inc.php` in the `config` subdirectory.
+
 ## missing features / ideas / TODO
 
 * destructive actions (e.g. instance removal)
