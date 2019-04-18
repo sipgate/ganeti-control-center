@@ -233,32 +233,29 @@
 	</div>
 	<div class="row">
 		<div class="col-sm-12 col-md-12 col-lg-12 text-center">
-			<h3 class="text-left">Hypervisor Parameters</h3>
-			<table class="table table-striped" id="hvparamsTable">
-			<thead>
-			<tr>
-				<th>Parameter</th>
-				<th>Value</th>
-			</tr>
-			</thead>
-			<tbody>
+            <h3 class="text-left">Hypervisor Parameters <small><a data-toggle="collapse" href="#collapseHvparams" role="button" aria-expanded="false" controls="collapseHvparams">Show/Hide Details</a></small></h3>
+            <div class="collapse" id="collapseHvparams">
+                <div class="card card-body">
+	    			<table class="table table-striped" id="hvparamsTable">
+	    			<thead>
+	    			<tr>
+	    				<th>Parameter</th>
+	    				<th>Value</th>
+		    		</tr>
+	    			</thead>
+	    			<tbody>
 {% for key,value in instance.hvparams %}
-			<tr>
-				<td>{{ key }}</td>
-				<td>{{ value }}</td>
-			</tr>
+	    			<tr>
+	    				<td>{{ key }}</td>
+	        			<td>{{ value }}</td>
+				    </tr>
 {% endfor %}
-			</tbody>
-			</table>
+				    </tbody>
+				    </table>
+                </div>
+            </div>
 		</div>
 
-	</div>
-	<div class="row">
-		<div class="col-sm-12 col-md-12 col-lg-12">
-			<pre style="margin-top: 30px;">
-{{ instance_dump }}
-			</pre>
-		</div>
 	</div>
 
 {% include 'dialogs_instancedetails.html' %}
