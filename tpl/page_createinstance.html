@@ -15,7 +15,7 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-12">
+			<div class="col-md-6">
 				<div class="form-group">
 					<div class="checkbox">
 						<label>
@@ -24,11 +24,29 @@
 					  </div>
 				</div>
 			</div>
+			<div class="col-md-6">
+				<div class="form-group">
+					<div class="checkbox">
+						<label>
+						  <input type="checkbox" name="autoAssignGroup" value="true" id="autoAssignGroupCheckbox" checked> Let the cluster select the preferred node group
+							</label>
+					  </div>
+				</div>
+			</div>
 		</div>
         <div class="row">
-			<div class="col-md-12">
+			<div class="col-md-6">
 				<div class="form-group">
 					<input class="form-control" id="inputInstanceTag" name="instanceTag" type="text" placeholder="Instance Tag (optional)" />
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group">
+					<select class="form-control" id="inputNodeGroup" name="nodeGroup" disabled>
+{% for group in nodeGroups %}
+						<option>{{ group.name }}</option>
+{% endfor %}
+					</select>
 				</div>
 			</div>
 		</div>
@@ -98,5 +116,13 @@
                             return false;
                         });
         });
+		$('#autoAssignGroupCheckbox').change(function() {
+			if ($("#autoAssignGroupCheckbox").is(':checked')) {
+				$('#inputNodeGroup').prop("disabled", true);
+			}
+			else {
+				$('#inputNodeGroup').prop("disabled", false);
+			}
+		});
 	 </script>
 {% endblock %}
