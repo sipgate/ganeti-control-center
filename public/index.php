@@ -206,10 +206,10 @@ $app->post('/createInstance', function() use ($app) {
 			"ip_check" => false,
 			"mode" => "create",
 			"name_check" => false,
-			"no_install" => true,
+			"no_install" => $config["rapi-current"]["auto-install-instance"],
 			"wait_for_sync" => false,
 			"instance_name" => $instanceName,
-            "os_type" => "debootstrap+default",
+            "os_type" => $config["rapi-current"]["default-os"],
             "hypervisor" => "kvm",
 			"beparams" => array(
 				"vcpus" => $_POST["cpuCount"],
