@@ -175,14 +175,12 @@ $app->get('/jobStatus/:j', function($jobId) use ($app) {
 $app->get('/createInstance', function() use ($app) {
 	global $config;
 	$g = new ganetiClient($config["rapi-current"]);
-	$nodeGroups = $g->getGroups();
 	$cluster = $g->getClusterInfo();
 	$clusterName = $g->getConfigName();
 	$app->render('page_createinstance.html', array( "config" => $config,
 		"clusterName" => $clusterName,
 		"vlans" => $config["vlans"][$clusterName],
 		"cluster" => $cluster,
-		"nodeGroups" => $nodeGroups
 		));
 });
 
@@ -237,11 +235,7 @@ $app->post('/createInstance', function() use ($app) {
         if(!empty($instanceTags)) {
             $key = count($instances) - 1;
             $instances[$key]["tags"] = $instanceTags;
-		}
-		if(!isset($_POST["autoAssignGroup"])) {
-			$key = count($instances) - 1;
-			$instances[$key]["group_name"] = $_POST["nodeGroup"];
-		}
+        }
 	}
     $params["instances"] = $instances;
     $g->createMultiInstance($params);
