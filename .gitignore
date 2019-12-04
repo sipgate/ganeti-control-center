@@ -1,3 +1,2 @@
 config/config.inc.php
 config/pxe-boot-template.txt
-vendor
