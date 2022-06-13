@@ -1,5 +1,10 @@
 # GANETI CONTROL CENTER
 
+## Unsupported Project
+
+This project is unsupported and not active anymore.
+Please head over to the active project [gnt-cc](https://github.com/sipgate/gnt-cc).
+
 ## What is this?
 
 GCC is a frontend to manage ganeti clusters. Essentially, it is a web application based on Slim/Twig, that wraps around a PHP class ```ganetiClient```, which in turn connects to a cluster's RAPI daemon. The class could also be used in other projects/scripts. As of now, GCC does not store any data on its own. However, you need a TFTP server running on the same machine to use the 'preseed feature' (which starts an instance and creates a special tftp/pxe boot configuration for this host).
